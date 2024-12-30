@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input'
 import { EyeIcon, EyeOffIcon } from 'lucide-react'
 import { type ChangeEvent, type FormEvent, useState } from 'react'
 
-import logoImg from '../../public/logo.svg'
+import logoImg from '../assets/images/logo.svg'
 
 export function Login() {
   const [showPassword, setShowPassword] = useState(false)
@@ -50,7 +50,7 @@ export function Login() {
                   required
                   value={formData.email}
                   onChange={handleChange}
-                  className="w-full"
+                  className="w-full border border-muted-foreground"
                 />
               </div>
 
@@ -66,7 +66,7 @@ export function Login() {
                     required
                     value={formData.password}
                     onChange={handleChange}
-                    className="w-full pr-10"
+                    className="w-full pr-10 border border-muted-foreground"
                   />
                   <button
                     type="button"
