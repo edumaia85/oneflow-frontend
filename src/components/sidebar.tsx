@@ -21,6 +21,7 @@ import {
   DropdownMenuTrigger,
 } from './ui/dropdown-menu'
 import { useAuth } from '@/contexts/auth-context'
+import { NavLink } from 'react-router-dom'
 
 export function Sidebar() {
   const { user, handleLogout } = useAuth()
@@ -76,7 +77,7 @@ export function Sidebar() {
           <Avatar>
             {/* Exibe uma imagem de perfil, se houver, ou as iniciais do usuário */}
             <AvatarImage
-              src="https://github.com/shadcn.png"
+              src={user?.imageUrl}
               alt="Profile picture"
             />
             <AvatarFallback>
@@ -100,7 +101,9 @@ export function Sidebar() {
             <DropdownMenuContent>
               <DropdownMenuLabel>Minha conta</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>Meu Perfil</DropdownMenuItem>
+              <DropdownMenuItem>
+                <NavLink to="/dashboard/perfil">Meu perfil</NavLink>
+              </DropdownMenuItem>
               <DropdownMenuItem onClick={() => handleLogout()}>
                 Sair
               </DropdownMenuItem>

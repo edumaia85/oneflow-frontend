@@ -12,6 +12,8 @@ import { Dashboard } from './pages/dashboard'
 import { Projects } from './pages/projects'
 import { AuthProvider } from './contexts/auth-context'
 import { ProtectedRoute } from './components/protected-route'
+import { Profile } from './pages/profile'
+import { UpdateProfileImage } from './pages/update-profile-image'
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -20,6 +22,11 @@ const router = createBrowserRouter(
         <Route path="/dashboard" element={<DefaultLayout />}>
           <Route index element={<Dashboard />} />
           <Route path="projetos" element={<Projects />} />
+          <Route path="perfil" element={<Profile />} />
+          <Route
+            path="perfil/atualizar-imagem"
+            element={<UpdateProfileImage />}
+          />
         </Route>
       </Route>
 

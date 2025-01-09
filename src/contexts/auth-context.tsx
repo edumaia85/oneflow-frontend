@@ -7,6 +7,13 @@ interface UserProps {
   name: string
   lastName: string
   email: string
+  cpf: string
+  telephone: string
+  role: 'PRESIDENTE' | 'DIRETOR' | 'MEMBRO'
+  imageUrl: string
+  sector: {
+    sectorId: number
+  }
 }
 
 interface AuthContextProps {
