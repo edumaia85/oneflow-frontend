@@ -20,8 +20,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from './ui/dropdown-menu'
+import { useAuth } from '@/contexts/auth-context'
 
 export function Sidebar() {
+  const { user, handleLogout } = useAuth()
+
   return (
     <div className="relative min-h-screen flex flex-col bg-gray-200 w-1/2 max-w-[270px] space-y-2">
       {/* Cabeçalho */}
@@ -56,31 +59,55 @@ export function Sidebar() {
         icon={BadgeDollarSignIcon}
         href="/dashboard/administrativo"
       />
-      <SidebarItem label="Clientes" icon={UsersIcon} href="/dashboard/clientes" />
-      <SidebarItem label="Presidência" icon={CrownIcon} href="/dashboard/presidencia" />
+      <SidebarItem
+        label="Clientes"
+        icon={UsersIcon}
+        href="/dashboard/clientes"
+      />
+      <SidebarItem
+        label="Presidência"
+        icon={CrownIcon}
+        href="/dashboard/presidencia"
+      />
 
       {/* Usuário logado */}
-      <section className="absolute bottom-0 left-0 p-2 w-full flex items-center gap-2">
-        <Avatar>
-          <AvatarImage src="https://github.com/shadcn.png" />
-          <AvatarFallback>CN</AvatarFallback>
-        </Avatar>
-        <div className="flex flex-col">
-          <p>Eduardo Maia</p>
-          <p className="text-xs text-muted-foreground">eduardo@gmail.com</p>
-        </div>
-        <DropdownMenu>
-          <DropdownMenuTrigger className="mb-3 ml-3">
-            <ChevronDownIcon />
-          </DropdownMenuTrigger>
-          <DropdownMenuContent>
-            <DropdownMenuLabel>Minha conta</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>Meu Perfil</DropdownMenuItem>
-            <DropdownMenuItem>Sair</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </section>
+      {user && (
+        <section className="absolute bottom-0 left-0 p-2 w-full flex items-center gap-2">
+          <Avatar>
+            {/* Exibe uma imagem de perfil, se houver, ou as iniciais do usuário */}
+            <AvatarImage
+              src="https://github.com/shadcn.png"
+              alt="Profile picture"
+            />
+            <AvatarFallback>
+              {user.name}
+              {user.lastName}
+            </AvatarFallback>
+          </Avatar>
+          <div className="flex flex-col">
+            {/* Exibe o nome completo do usuário */}
+            <p className="font-semibold">
+              {user.name} {user.lastName}
+            </p>
+            {/* Exibe o email do usuário */}
+            <p className="text-xs text-muted-foreground">{user.email}</p>
+          </div>
+          {/* Menu suspenso com opções */}
+          <DropdownMenu>
+            <DropdownMenuTrigger className="mb-3 ml-3">
+              <ChevronDownIcon />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuLabel>Minha conta</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem>Meu Perfil</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleLogout()}>
+                Sair
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </section>
+      )}
     </div>
   )
 }

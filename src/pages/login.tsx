@@ -2,9 +2,11 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { EyeIcon, EyeOffIcon } from 'lucide-react'
-import { type ChangeEvent, type FormEvent, useState } from 'react'
+import { type ChangeEvent, type FormEvent, useEffect, useState } from 'react'
 
 import logoImg from '../assets/images/logo.svg'
+import { useAuth } from '@/contexts/auth-context'
+import { useNavigate } from 'react-router-dom'
 
 export function Login() {
   const [showPassword, setShowPassword] = useState(false)
@@ -13,9 +15,20 @@ export function Login() {
     password: '',
   })
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const navigate = useNavigate()
+
+  const { handleLogin, user } = useAuth()
+
+  useEffect(() => {
+    if (user) {
+      navigate('/dashboard')
+    }
+  }, [user, navigate])
+
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
-    console.log('Form submitted:', formData)
+    
+    await handleLogin(formData.email, formData.password)
   }
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
