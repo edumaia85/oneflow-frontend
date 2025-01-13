@@ -7,9 +7,64 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { baseURL } from '@/utils/constants'
 import { DeleteIcon, PlusIcon, RefreshCcwIcon } from 'lucide-react'
+import { parseCookies } from 'nookies'
+import { useEffect, useState } from 'react'
+
+enum ProjectStatus {
+  FINALIZADO = 'FINALIZADO',
+  EM_ANDAMENTO = 'EM ANDAMENTO',
+  PENDENTE = 'PENDENTE',
+  CANCELADO = 'CANCELADO',
+}
+
+interface Project {
+  id: number
+  name: string
+  description: string
+  price: number
+  deadline: Date
+  projectStatus: ProjectStatus
+  customerId: number
+  userIds: number[]
+}
+
+interface ProjectsResponse {
+  content: Project[]
+  totalPages: number
+}
 
 export function Projects() {
+  const [projects, setProjects] = useState<Project[]>([])
+  const [isLoading, setIsLoading] = useState<boolean>(false)
+
+  const { 'oneflow.token': token } = parseCookies()
+
+  const fetchProjects = async () => {
+    try {
+      setIsLoading(true)
+      const response = await fetch(`${baseURL}/projects`, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+
+      if (!response.ok) {
+        throw new Error('Falha ao buscar projetos')
+      }
+
+      const data: ProjectsResponse = await response.json()
+      setProjects(data.content)
+    } catch (err) {
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  useEffect(() => {}, [])
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-20 gap-8">
       <div className="w-full flex items-center justify-between">
@@ -30,6 +85,7 @@ export function Projects() {
             <TableHead className="w-[100px]">Nome</TableHead>
             <TableHead>Descrição</TableHead>
             <TableHead>Preço</TableHead>
+            <TableHead>Prazo final</TableHead>
             <TableHead>Status</TableHead>
             <TableHead className="text-center" colSpan={2}>
               Ações
@@ -37,52 +93,38 @@ export function Projects() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          <TableRow>
-            <TableCell>Finanças Web</TableCell>
-            <TableCell>
-              Lorem, ipsum dolor sit amet consectetur adipisicing elit.
-            </TableCell>
-            <TableCell>R$ 2000,00</TableCell>
-            <TableCell>Finalizado</TableCell>
-            <TableCell>
-              <Button className="flex items-center justify-center gap-2 rounded-2xl">
-                <RefreshCcwIcon />
-                Atualizar
-              </Button>
-            </TableCell>
-            <TableCell>
-              <Button
-                className="flex items-center justify-center gap-2 rounded-2xl"
-                variant="destructive"
-              >
-                <DeleteIcon />
-                Deletar
-              </Button>
-            </TableCell>
-          </TableRow>
-          <TableRow>
-            <TableCell>Finanças Web</TableCell>
-            <TableCell>
-              Lorem, ipsum dolor sit amet consectetur adipisicing elit.
-            </TableCell>
-            <TableCell>R$ 2000,00</TableCell>
-            <TableCell>Finalizado</TableCell>
-            <TableCell>
-              <Button className="flex items-center justify-center gap-2 rounded-2xl">
-                <RefreshCcwIcon />
-                Atualizar
-              </Button>
-            </TableCell>
-            <TableCell>
-              <Button
-                className="flex items-center justify-center gap-2 rounded-2xl"
-                variant="destructive"
-              >
-                <DeleteIcon />
-                Deletar
-              </Button>
-            </TableCell>
-          </TableRow>
+          {projects.map(project => (
+            <TableRow key={project.id}>
+              <TableCell>{project.name}</TableCell>
+              <TableCell>{project.description}</TableCell>
+              <TableCell>
+                {new Intl.NumberFormat('pt-BR', {
+                  style: 'currency',
+                  currency: 'BRL',
+                }).format(project.price)}
+              </TableCell>
+              <TableCell>
+                {project.deadline.toLocaleDateString('pt-BR')}
+              </TableCell>
+              <TableCell>{project.projectStatus}</TableCell>
+              <TableCell>
+                <Button className="flex items-center justify-center gap-2 rounded-2xl">
+                  <RefreshCcwIcon />
+                  Atualizar
+                </Button>
+              </TableCell>
+              <TableCell>
+                <Button
+                  className="flex items-center justify-center gap-2 rounded-2xl"
+                  variant="destructive"
+                  onClick={() => {}}
+                >
+                  <DeleteIcon />
+                  Deletar
+                </Button>
+              </TableCell>
+            </TableRow>
+          ))}
         </TableBody>
       </Table>
     </div>
