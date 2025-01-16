@@ -14,6 +14,10 @@ import { AuthProvider } from './contexts/auth-context'
 import { ProtectedRoute } from './components/protected-route'
 import { Profile } from './pages/profile'
 import { UpdateProfileImage } from './pages/update-profile-image'
+import { Presidency } from './pages/presidency'
+import { Toaster } from './components/ui/toaster'
+import { GeneralDocuments } from './pages/general-documents'
+import { Customers } from './pages/customers'
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -23,6 +27,9 @@ const router = createBrowserRouter(
           <Route index element={<Dashboard />} />
           <Route path="projetos" element={<Projects />} />
           <Route path="perfil" element={<Profile />} />
+          <Route path="presidencia" element={<Presidency />} />
+          <Route path="clientes" element={<Customers />} />
+          <Route path="documentos-gerais" element={<GeneralDocuments />} />
           <Route
             path="perfil/atualizar-imagem"
             element={<UpdateProfileImage />}
@@ -39,6 +46,7 @@ export function App() {
   return (
     <AuthProvider>
       <RouterProvider router={router} />
+      <Toaster />
     </AuthProvider>
   )
 }
