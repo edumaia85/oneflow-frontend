@@ -56,9 +56,9 @@ export function Sidebar() {
         href="/dashboard/gestao-de-pessoas"
       />
       <SidebarItem
-        label="Administrativo"
+        label="Financeiro"
         icon={BadgeDollarSignIcon}
-        href="/dashboard/administrativo"
+        href="/dashboard/financeiro"
       />
       <SidebarItem
         label="Clientes"

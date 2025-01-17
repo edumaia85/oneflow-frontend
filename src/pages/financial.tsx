@@ -87,7 +87,7 @@ interface CustomersResponse {
   totalPages: number
 }
 
-export function Projects() {
+export function Financial() {
   const [projects, setProjects] = useState<Project[]>([])
   const [users, setUsers] = useState<User[]>([])
   const [customers, setCustomers] = useState<Customer[]>([])
@@ -123,7 +123,7 @@ export function Projects() {
   const fetchProjects = useCallback(async () => {
     try {
       setIsLoading(true)
-      const response = await fetch(`${baseURL}/projects?page=0&sectorId=5`, {
+      const response = await fetch(`${baseURL}/projects?page=0&sectorId=2`, {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -344,7 +344,7 @@ export function Projects() {
     <div className="min-h-screen flex flex-col items-center justify-center px-20 gap-8">
       <div className="w-full flex items-center justify-between">
         <div className="flex gap-4">
-          <h1 className="text-3xl font-semibold">Projetos</h1>
+          <h1 className="text-3xl font-semibold">Administrativo/Financeiro</h1>
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
               <Button className="flex items-center justify-center gap-2 rounded-2xl w-[130px]">

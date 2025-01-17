@@ -18,6 +18,9 @@ import { Presidency } from './pages/presidency'
 import { Toaster } from './components/ui/toaster'
 import { GeneralDocuments } from './pages/general-documents'
 import { Customers } from './pages/customers'
+import { Marketing } from './pages/marketing'
+import { PeopleManagement } from './pages/people-management'
+import { Financial } from './pages/financial'
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -26,8 +29,11 @@ const router = createBrowserRouter(
         <Route path="/dashboard" element={<DefaultLayout />}>
           <Route index element={<Dashboard />} />
           <Route path="projetos" element={<Projects />} />
-          <Route path="perfil" element={<Profile />} />
+          <Route path="marketing" element={<Marketing />} />
+          <Route path="gestao-de-pessoas" element={<PeopleManagement />} />
+          <Route path="financeiro" element={<Financial />} />
           <Route path="presidencia" element={<Presidency />} />
+          <Route path="perfil" element={<Profile />} />
           <Route path="clientes" element={<Customers />} />
           <Route path="documentos-gerais" element={<GeneralDocuments />} />
           <Route

@@ -8,7 +8,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { baseURL } from '@/utils/constants'
-import { DeleteIcon, Eye, PencilIcon, PlusIcon } from 'lucide-react'
+import { DeleteIcon, EyeIcon, PencilIcon, PlusIcon } from 'lucide-react'
 import { parseCookies } from 'nookies'
 import { useCallback, useEffect, useState } from 'react'
 import {
@@ -87,7 +87,7 @@ interface CustomersResponse {
   totalPages: number
 }
 
-export function Projects() {
+export function PeopleManagement() {
   const [projects, setProjects] = useState<Project[]>([])
   const [users, setUsers] = useState<User[]>([])
   const [customers, setCustomers] = useState<Customer[]>([])
@@ -123,7 +123,7 @@ export function Projects() {
   const fetchProjects = useCallback(async () => {
     try {
       setIsLoading(true)
-      const response = await fetch(`${baseURL}/projects?page=0&sectorId=5`, {
+      const response = await fetch(`${baseURL}/projects?page=0&sectorId=3`, {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -249,7 +249,7 @@ export function Projects() {
 
   const handleUpdateClick = (project: Project) => {
     setProjectToUpdate(project)
-    setSelectedUsers(project.users.map(user => user.userId))
+    setSelectedUsers(project.userIds || [])
     setIsEditDialogOpen(true)
   }
 
@@ -344,7 +344,7 @@ export function Projects() {
     <div className="min-h-screen flex flex-col items-center justify-center px-20 gap-8">
       <div className="w-full flex items-center justify-between">
         <div className="flex gap-4">
-          <h1 className="text-3xl font-semibold">Projetos</h1>
+          <h1 className="text-3xl font-semibold">Gestão de pessoas</h1>
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
               <Button className="flex items-center justify-center gap-2 rounded-2xl w-[130px]">
@@ -528,7 +528,7 @@ export function Projects() {
                     setIsUsersDialogOpen(true)
                   }}
                 >
-                  <Eye className="size-4" />
+                  <EyeIcon className="size-4" />
                 </Button>
               </TableCell>
               <TableCell className="flex gap-2">
@@ -665,9 +665,6 @@ export function Projects() {
                       <RadioGroupItem
                         value={String(customer.customerId)}
                         id={`edit-customer-${customer.customerId}`}
-                        checked={
-                          customer.customerId === projectToUpdate.customerId
-                        }
                       />
                       <Label
                         htmlFor={`edit-customer-${customer.customerId}`}

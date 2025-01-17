@@ -8,7 +8,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { baseURL } from '@/utils/constants'
-import { DeleteIcon, PlusIcon } from 'lucide-react'
+import { DeleteIcon, Eye, PencilIcon, PlusIcon } from 'lucide-react'
 import { parseCookies } from 'nookies'
 import { useCallback, useEffect, useState } from 'react'
 import {
@@ -63,9 +63,16 @@ export function Customers() {
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
+  const [isAddressDialogOpen, setIsAddressDialogOpen] = useState(false)
+  const [selectedAddress, setSelectedAddress] = useState<
+    Customer['address'] | null
+  >(null)
+  const [customerToEdit, setCustomerToEdit] = useState<Customer | null>(null)
   const [customerToDelete, setCustomerToDelete] = useState<Customer | null>(
     null
   )
+
   const [newCustomer, setNewCustomer] = useState({
     name: '',
     email: '',
@@ -148,6 +155,43 @@ export function Customers() {
         title: 'Erro ao adicionar cliente!',
         description:
           'Houve um erro ao adicionar cliente. Tente novamente mais tarde.',
+        variant: 'destructive',
+      })
+    }
+  }
+
+  const handleUpdateCustomer = async () => {
+    if (!customerToEdit) return
+
+    try {
+      const response = await fetch(
+        `${baseURL}/customers/${customerToEdit.customerId}`,
+        {
+          method: 'PUT',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(customerToEdit),
+        }
+      )
+
+      if (!response.ok) {
+        throw new Error('Falha ao atualizar cliente')
+      }
+
+      await fetchCustomers()
+      setIsEditDialogOpen(false)
+      setCustomerToEdit(null)
+      toast({
+        title: 'Cliente atualizado com sucesso!',
+        description: 'As informações do cliente foram atualizadas.',
+      })
+    } catch (err) {
+      console.error('Erro ao atualizar cliente:', err)
+      toast({
+        title: 'Erro ao atualizar cliente!',
+        description: 'Houve um erro ao atualizar o cliente. Tente novamente.',
         variant: 'destructive',
       })
     }
@@ -384,8 +428,8 @@ export function Customers() {
             <TableHead>Contato</TableHead>
             <TableHead>Tipo</TableHead>
             <TableHead>Documento</TableHead>
-            <TableHead>Cidade/UF</TableHead>
-            <TableHead>Ações</TableHead>
+            <TableHead>Endereço</TableHead>
+            <TableHead className="text-center">Ações</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -396,24 +440,276 @@ export function Customers() {
               <TableCell>{customer.telephone}</TableCell>
               <TableCell>{customer.type}</TableCell>
               <TableCell>{customer.identificationNumber}</TableCell>
-              <TableCell>{`${customer.address.city}/${customer.address.uf}`}</TableCell>
-              <TableCell>
+              <TableCell className="text-center">
                 <Button
-                  className="flex items-center justify-center gap-2 rounded-2xl"
-                  variant="destructive"
+                  variant="ghost"
+                  size="icon"
                   onClick={() => {
-                    setCustomerToDelete(customer)
-                    setIsDeleteDialogOpen(true)
+                    setSelectedAddress(customer.address)
+                    setIsAddressDialogOpen(true)
                   }}
                 >
-                  <DeleteIcon />
-                  Deletar
+                  <Eye className="size-4" />
                 </Button>
+              </TableCell>
+              <TableCell>
+                <div className="flex items-center gap-2">
+                  <Button
+                    className="flex items-center justify-center gap-2 rounded-2xl"
+                    onClick={() => {
+                      setCustomerToEdit(customer)
+                      setIsEditDialogOpen(true)
+                    }}
+                    variant="outline"
+                  >
+                    <PencilIcon className="size-4" />
+                    Editar
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    onClick={() => {
+                      setCustomerToDelete(customer)
+                      setIsDeleteDialogOpen(true)
+                    }}
+                  >
+                    <DeleteIcon className="size-4" />
+                    Deletar
+                  </Button>
+                </div>
               </TableCell>
             </TableRow>
           ))}
         </TableBody>
       </Table>
+
+      <Dialog open={isAddressDialogOpen} onOpenChange={setIsAddressDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Detalhes do Endereço</DialogTitle>
+          </DialogHeader>
+          {selectedAddress && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <Label>Rua</Label>
+                  <p className="text-sm">{selectedAddress.street}</p>
+                </div>
+                <div>
+                  <Label>Número</Label>
+                  <p className="text-sm">{selectedAddress.number}</p>
+                </div>
+                <div>
+                  <Label>Bairro</Label>
+                  <p className="text-sm">{selectedAddress.neighborhood}</p>
+                </div>
+                <div>
+                  <Label>Cidade</Label>
+                  <p className="text-sm">{selectedAddress.city}</p>
+                </div>
+                <div>
+                  <Label>UF</Label>
+                  <p className="text-sm">{selectedAddress.uf}</p>
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Editar cliente</DialogTitle>
+          </DialogHeader>
+          {customerToEdit && (
+            <div className="flex flex-col gap-4">
+              <div className="grid w-full items-center gap-2">
+                <Label htmlFor="edit-name">Nome</Label>
+                <Input
+                  id="edit-name"
+                  value={customerToEdit.name}
+                  onChange={e =>
+                    setCustomerToEdit({
+                      ...customerToEdit,
+                      name: e.target.value,
+                    })
+                  }
+                />
+              </div>
+              <div className="grid w-full items-center gap-2">
+                <Label htmlFor="edit-email">Email</Label>
+                <Input
+                  id="edit-email"
+                  type="email"
+                  value={customerToEdit.email}
+                  onChange={e =>
+                    setCustomerToEdit({
+                      ...customerToEdit,
+                      email: e.target.value,
+                    })
+                  }
+                />
+              </div>
+              <div className="grid w-full items-center gap-2">
+                <Label htmlFor="edit-telephone">Contato</Label>
+                <Input
+                  id="edit-telephone"
+                  value={customerToEdit.telephone}
+                  onChange={e =>
+                    setCustomerToEdit({
+                      ...customerToEdit,
+                      telephone: e.target.value,
+                    })
+                  }
+                />
+              </div>
+              <div className="grid w-full items-center gap-2">
+                <Label htmlFor="edit-type">Tipo</Label>
+                <Select
+                  value={customerToEdit.type}
+                  onValueChange={(value: CustomerType) =>
+                    setCustomerToEdit({
+                      ...customerToEdit,
+                      type: value,
+                    })
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione um tipo" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.values(CustomerType).map(type => (
+                      <SelectItem key={type} value={type}>
+                        {type}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="grid w-full items-center gap-2">
+                <Label htmlFor="edit-identificationNumber">
+                  {customerToEdit.type === CustomerType.PF ? 'CPF' : 'CNPJ'}
+                </Label>
+                <Input
+                  id="edit-identificationNumber"
+                  value={customerToEdit.identificationNumber}
+                  onChange={e =>
+                    setCustomerToEdit({
+                      ...customerToEdit,
+                      identificationNumber: e.target.value,
+                    })
+                  }
+                />
+              </div>
+
+              <div className="space-y-4">
+                <h4 className="font-medium">Endereço</h4>
+
+                <div className="grid w-full items-center gap-2">
+                  <Label htmlFor="edit-street">Rua</Label>
+                  <Input
+                    id="edit-street"
+                    value={customerToEdit.address.street}
+                    onChange={e =>
+                      setCustomerToEdit({
+                        ...customerToEdit,
+                        address: {
+                          ...customerToEdit.address,
+                          street: e.target.value,
+                        },
+                      })
+                    }
+                  />
+                </div>
+
+                <div className="grid w-full items-center gap-2">
+                  <Label htmlFor="edit-number">Número</Label>
+                  <Input
+                    id="edit-number"
+                    value={customerToEdit.address.number}
+                    onChange={e =>
+                      setCustomerToEdit({
+                        ...customerToEdit,
+                        address: {
+                          ...customerToEdit.address,
+                          number: e.target.value,
+                        },
+                      })
+                    }
+                  />
+                </div>
+
+                <div className="grid w-full items-center gap-2">
+                  <Label htmlFor="edit-neighborhood">Bairro</Label>
+                  <Input
+                    id="edit-neighborhood"
+                    value={customerToEdit.address.neighborhood}
+                    onChange={e =>
+                      setCustomerToEdit({
+                        ...customerToEdit,
+                        address: {
+                          ...customerToEdit.address,
+                          neighborhood: e.target.value,
+                        },
+                      })
+                    }
+                  />
+                </div>
+
+                <div className="grid w-full items-center gap-2">
+                  <Label htmlFor="edit-city">Cidade</Label>
+                  <Input
+                    id="edit-city"
+                    value={customerToEdit.address.city}
+                    onChange={e =>
+                      setCustomerToEdit({
+                        ...customerToEdit,
+                        address: {
+                          ...customerToEdit.address,
+                          city: e.target.value,
+                        },
+                      })
+                    }
+                  />
+                </div>
+
+                <div className="grid w-full items-center gap-2">
+                  <Label htmlFor="edit-uf">UF</Label>
+                  <Input
+                    id="edit-uf"
+                    maxLength={2}
+                    value={customerToEdit.address.uf}
+                    onChange={e =>
+                      setCustomerToEdit({
+                        ...customerToEdit,
+                        address: {
+                          ...customerToEdit.address,
+                          uf: e.target.value.toUpperCase(),
+                        },
+                      })
+                    }
+                  />
+                </div>
+              </div>
+
+              <DialogFooter className="flex gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setIsEditDialogOpen(false)
+                    setCustomerToEdit(null)
+                  }}
+                >
+                  Cancelar
+                </Button>
+                <Button onClick={handleUpdateCustomer}>
+                  Salvar alterações
+                </Button>
+              </DialogFooter>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <DialogContent>
