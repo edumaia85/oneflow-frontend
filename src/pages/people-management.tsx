@@ -30,7 +30,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useToast } from '@/hooks/use-toast'
-import { NavLink } from 'react-router-dom'
+import { NavLink, useNavigate } from 'react-router-dom'
 import { Checkbox } from '@/components/ui/checkbox'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 
@@ -112,6 +112,7 @@ export function PeopleManagement() {
 
   const { 'oneflow.token': token } = parseCookies()
   const { toast } = useToast()
+  const navigate = useNavigate()
 
   const formatStatus = (status: string) => {
     return status
@@ -487,8 +488,8 @@ export function PeopleManagement() {
             <NavLink to='/dashboard/reunioes/3'>Reuniões</NavLink>
           </Button>
         </div>
-        <Button className="rounded-2xl w-[130px]">
-          <NavLink to="/dashboard/documentos">Documentos</NavLink>
+        <Button className="rounded-2xl w-[130px]" onClick={() => {navigate('/dashboard/documentos/3')}}>
+          Documentos
         </Button>
       </div>
 

@@ -16,7 +16,7 @@ import { Profile } from './pages/profile'
 import { UpdateProfileImage } from './pages/update-profile-image'
 import { Presidency } from './pages/presidency'
 import { Toaster } from './components/ui/toaster'
-import { GeneralDocuments } from './pages/general-documents'
+import { Documents, GeneralDocuments } from './pages/documents'
 import { Customers } from './pages/customers'
 import { Marketing } from './pages/marketing'
 import { PeopleManagement } from './pages/people-management'
@@ -40,7 +40,7 @@ const router = createBrowserRouter(
           <Route path="perfil" element={<Profile />} />
           <Route path="clientes" element={<Customers />} />
           <Route path="usuario/atualizar-dados" element={<UpdateProfile />} />
-          <Route path="documentos-gerais" element={<GeneralDocuments />} />
+          <Route path="documentos/:sectorId" element={<Documents />} />
           <Route
             path="perfil/atualizar-imagem"
             element={<UpdateProfileImage />}

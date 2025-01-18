@@ -30,7 +30,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useToast } from '@/hooks/use-toast'
-import { NavLink } from 'react-router-dom'
+import { NavLink, useNavigate } from 'react-router-dom'
 
 enum UserRole {
   PRESIDENTE = 'PRESIDENTE',
@@ -77,6 +77,7 @@ export function Presidency() {
 
   const { 'oneflow.token': token } = parseCookies()
   const { toast } = useToast()
+  const navigate = useNavigate()
 
   const formatRole = (role: string) => {
     return role.charAt(0).toUpperCase() + role.slice(1).toLowerCase()
@@ -323,8 +324,8 @@ export function Presidency() {
             <NavLink to="/dashboard/reunioes/1">Reuniões</NavLink>
           </Button>
         </div>
-        <Button className="rounded-2xl w-[130px] self-end">
-          <NavLink to="/dashboard/documentos-gerais">Documentos</NavLink>
+        <Button className="rounded-2xl w-[130px]" onClick={() => {navigate('/dashboard/documentos/1')}}>
+          Documentos
         </Button>
       </div>
 

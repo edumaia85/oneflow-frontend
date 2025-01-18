@@ -8,7 +8,13 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { baseURL } from '@/utils/constants'
-import { CalendarIcon, DeleteIcon, Eye, PencilIcon, PlusIcon } from 'lucide-react'
+import {
+  CalendarIcon,
+  DeleteIcon,
+  Eye,
+  PencilIcon,
+  PlusIcon,
+} from 'lucide-react'
 import { parseCookies } from 'nookies'
 import { useCallback, useEffect, useState } from 'react'
 import {
@@ -30,7 +36,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useToast } from '@/hooks/use-toast'
-import { NavLink } from 'react-router-dom'
+import { NavLink, useNavigate } from 'react-router-dom'
 import { Checkbox } from '@/components/ui/checkbox'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 
@@ -112,6 +118,7 @@ export function Financial() {
 
   const { 'oneflow.token': token } = parseCookies()
   const { toast } = useToast()
+  const navigate = useNavigate()
 
   const formatStatus = (status: string) => {
     return status
@@ -484,11 +491,16 @@ export function Financial() {
           </Dialog>
           <Button className="flex items-center justify-center gap-2 rounded-2xl w-[130px]">
             <CalendarIcon className="size-2" />
-            <NavLink to='/dashboard/reunioes/2'>Reuniões</NavLink>
+            <NavLink to="/dashboard/reunioes/2">Reuniões</NavLink>
           </Button>
         </div>
-        <Button className="rounded-2xl w-[130px]">
-          <NavLink to="/dashboard/documentos">Documentos</NavLink>
+        <Button
+          className="rounded-2xl w-[130px]"
+          onClick={() => {
+            navigate('/dashboard/documentos/2')
+          }}
+        >
+          Documentos
         </Button>
       </div>
 
