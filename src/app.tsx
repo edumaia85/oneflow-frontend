@@ -21,6 +21,9 @@ import { Customers } from './pages/customers'
 import { Marketing } from './pages/marketing'
 import { PeopleManagement } from './pages/people-management'
 import { Financial } from './pages/financial'
+import { Meetings } from './pages/meetings'
+import { ForgotPassword } from './pages/forgot-password'
+import { UpdateProfile } from './pages/update-profile'
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -32,9 +35,11 @@ const router = createBrowserRouter(
           <Route path="marketing" element={<Marketing />} />
           <Route path="gestao-de-pessoas" element={<PeopleManagement />} />
           <Route path="financeiro" element={<Financial />} />
+          <Route path="reunioes/:sectorId" element={<Meetings />} />
           <Route path="presidencia" element={<Presidency />} />
           <Route path="perfil" element={<Profile />} />
           <Route path="clientes" element={<Customers />} />
+          <Route path="usuario/atualizar-dados" element={<UpdateProfile />} />
           <Route path="documentos-gerais" element={<GeneralDocuments />} />
           <Route
             path="perfil/atualizar-imagem"
@@ -44,6 +49,7 @@ const router = createBrowserRouter(
       </Route>
 
       <Route path="/" element={<Login />} />
+      <Route path="/esqueci-minha-senha" element={<ForgotPassword />} />
     </Fragment>
   )
 )

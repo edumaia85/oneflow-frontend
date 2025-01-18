@@ -3,20 +3,21 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { EyeIcon, EyeOffIcon } from 'lucide-react'
 import { type ChangeEvent, type FormEvent, useEffect, useState } from 'react'
-
 import logoImg from '../assets/images/logo.svg'
 import { useAuth } from '@/contexts/auth-context'
 import { useNavigate } from 'react-router-dom'
+import { useToast } from '@/hooks/use-toast'
 
 export function Login() {
   const [showPassword, setShowPassword] = useState(false)
+  const [error, setError] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
   const [formData, setFormData] = useState({
     email: '',
     password: '',
   })
 
   const navigate = useNavigate()
-
   const { handleLogin, user } = useAuth()
 
   useEffect(() => {
@@ -27,8 +28,16 @@ export function Login() {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
-    
-    await handleLogin(formData.email, formData.password)
+    setError('')
+    setIsLoading(true)
+
+    try {
+      await handleLogin(formData.email, formData.password)
+    } catch (err) {
+      setError('E-mail ou senha inválidos')
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -36,6 +45,8 @@ export function Login() {
       ...formData,
       [e.target.name]: e.target.value,
     })
+    // Limpa o erro quando o usuário começa a digitar novamente
+    if (error) setError('')
   }
 
   return (
@@ -52,6 +63,12 @@ export function Login() {
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">
+              {error && (
+                <div className="p-3 bg-red-100 text-red-700 rounded text-sm">
+                  {error}
+                </div>
+              )}
+
               <div className="space-y-2">
                 <label className="text-sm font-medium" htmlFor="email">
                   E-mail
@@ -64,6 +81,7 @@ export function Login() {
                   value={formData.email}
                   onChange={handleChange}
                   className="w-full border border-muted-foreground"
+                  disabled={isLoading}
                 />
               </div>
 
@@ -80,11 +98,13 @@ export function Login() {
                     value={formData.password}
                     onChange={handleChange}
                     className="w-full pr-10 border border-muted-foreground"
+                    disabled={isLoading}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3 top-1/2 -translate-y-1/2"
+                    disabled={isLoading}
                   >
                     {showPassword ? (
                       <EyeOffIcon className="h-4 w-4 text-gray-500" />
@@ -95,8 +115,19 @@ export function Login() {
                 </div>
               </div>
 
-              <Button type="submit" className="w-full bg-primary">
-                Entrar
+              <Button 
+                type="submit" 
+                className="w-full bg-primary"
+                disabled={isLoading}
+              >
+                {isLoading ? 'Entrando...' : 'Entrar'}
+              </Button>
+              <Button
+                variant="link"
+                onClick={() => navigate('/esqueci-minha-senha')}
+                disabled={isLoading}
+              >
+                Esqueci minha senha
               </Button>
             </form>
           </CardContent>

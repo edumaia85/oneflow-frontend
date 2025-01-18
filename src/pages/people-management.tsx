@@ -8,7 +8,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { baseURL } from '@/utils/constants'
-import { DeleteIcon, EyeIcon, PencilIcon, PlusIcon } from 'lucide-react'
+import { CalendarIcon, DeleteIcon, EyeIcon, PencilIcon, PlusIcon } from 'lucide-react'
 import { parseCookies } from 'nookies'
 import { useCallback, useEffect, useState } from 'react'
 import {
@@ -482,6 +482,10 @@ export function PeopleManagement() {
               </div>
             </DialogContent>
           </Dialog>
+          <Button className="flex items-center justify-center gap-2 rounded-2xl w-[130px]">
+            <CalendarIcon className="size-2" />
+            <NavLink to='/dashboard/reunioes/3'>Reuniões</NavLink>
+          </Button>
         </div>
         <Button className="rounded-2xl w-[130px]">
           <NavLink to="/dashboard/documentos">Documentos</NavLink>

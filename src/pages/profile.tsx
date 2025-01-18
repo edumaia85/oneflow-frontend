@@ -77,7 +77,7 @@ export function Profile() {
                 <Button
                   variant="ghost"
                   className="w-full flex items-center justify-start gap-1"
-                  onClick={() => {}}
+                  onClick={() => {navigate('/dashboard/usuario/atualizar-dados')}}
                 >
                   <Settings className="size-4" />
                   Alterar dados

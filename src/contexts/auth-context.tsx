@@ -1,6 +1,13 @@
-import { createContext, type ReactNode, useContext, useState, useEffect } from 'react'
+import {
+  createContext,
+  type ReactNode,
+  useContext,
+  useState,
+  useEffect,
+} from 'react'
 import { setCookie, parseCookies, destroyCookie } from 'nookies'
 import { baseURL } from '@/utils/constants'
+import { useToast } from '@/hooks/use-toast'
 
 interface UserProps {
   id: string
@@ -28,12 +35,16 @@ interface AuthContextProviderProps {
 
 export async function login(email: string, password: string) {
   const response = await fetch(`${baseURL}/auth/login`, {
-    method: 'POST', 
+    method: 'POST',
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ email, password })
+    body: JSON.stringify({ email, password }),
   })
+
+  if (!response.ok) {
+    alert('E-mail ou senha inválidos!')
+  }
 
   const data = await response.json()
   return data
@@ -45,7 +56,8 @@ export const AuthProvider = ({ children }: AuthContextProviderProps) => {
   const [user, setUser] = useState<UserProps | null>(null)
 
   useEffect(() => {
-    const { 'oneflow.token': token, 'oneflow.user': storedUser } = parseCookies()
+    const { 'oneflow.token': token, 'oneflow.user': storedUser } =
+      parseCookies()
 
     if (token && storedUser) {
       try {

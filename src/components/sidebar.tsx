@@ -76,10 +76,7 @@ export function Sidebar() {
         <section className="absolute bottom-0 left-0 p-2 w-full flex items-center gap-2">
           <Avatar>
             {/* Exibe uma imagem de perfil, se houver, ou as iniciais do usuário */}
-            <AvatarImage
-              src={user?.imageUrl}
-              alt="Profile picture"
-            />
+            <AvatarImage src={user?.imageUrl} alt="Profile picture" />
             <AvatarFallback>
               {user.name}
               {user.lastName}

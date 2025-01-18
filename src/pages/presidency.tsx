@@ -8,7 +8,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { baseURL } from '@/utils/constants'
-import { DeleteIcon, PlusIcon } from 'lucide-react'
+import { CalendarIcon, DeleteIcon, PlusIcon } from 'lucide-react'
 import { parseCookies } from 'nookies'
 import { useCallback, useEffect, useState } from 'react'
 import {
@@ -159,7 +159,8 @@ export function Presidency() {
       console.error('Erro ao criar usuário:', err)
       toast({
         title: 'Erro ao adicionar usuário!',
-        description: 'Erro ao tentar adicionar novo usuário. Tente novamente mais tarde.',
+        description:
+          'Erro ao tentar adicionar novo usuário. Tente novamente mais tarde.',
         variant: 'destructive',
       })
     }
@@ -189,7 +190,8 @@ export function Presidency() {
       console.error('Erro ao deletar usuário:', err)
       toast({
         title: 'Erro ao deletar usuário!',
-        description: 'Erro ao tentar deletar novo usuário. Tente novamente mais tarde.',
+        description:
+          'Erro ao tentar deletar novo usuário. Tente novamente mais tarde.',
         variant: 'destructive',
       })
     }
@@ -316,6 +318,10 @@ export function Presidency() {
               </div>
             </DialogContent>
           </Dialog>
+          <Button className="flex items-center justify-center gap-2 rounded-2xl w-[130px]">
+            <CalendarIcon className="size-2" />
+            <NavLink to="/dashboard/reunioes/1">Reuniões</NavLink>
+          </Button>
         </div>
         <Button className="rounded-2xl w-[130px] self-end">
           <NavLink to="/dashboard/documentos-gerais">Documentos</NavLink>
