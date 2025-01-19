@@ -26,7 +26,7 @@ interface AuthContextProps {
   user: UserProps | null
   handleLogin: (email: string, password: string) => Promise<void>
   handleLogout: () => void
-  updateUser: (userData: UserProps) => void
+  updateUser: (userData: Partial<UserProps>, newToken?: string) => void
 }
 
 interface AuthContextProviderProps {
@@ -43,7 +43,7 @@ export async function login(email: string, password: string) {
   })
 
   if (!response.ok) {
-    alert('E-mail ou senha inválidos!')
+    throw new Error('E-mail ou senha inválidos!')
   }
 
   const data = await response.json()
@@ -92,12 +92,26 @@ export const AuthProvider = ({ children }: AuthContextProviderProps) => {
     setUser(null)
   }
 
-  const updateUser = (userData: UserProps) => {
-    setCookie(null, 'oneflow.user', JSON.stringify(userData), {
-      maxAge: 30 * 24 * 60 * 60, // 30 days
-      path: '/',
-    })
-    setUser(userData)
+  const updateUser = (userData: Partial<UserProps>, newToken?: string) => {
+    if (user) {
+      const updatedUser = { ...user, ...userData }
+
+      // Update user cookie
+      setCookie(null, 'oneflow.user', JSON.stringify(updatedUser), {
+        maxAge: 30 * 24 * 60 * 60, // 30 days
+        path: '/',
+      })
+
+      // Update token if provided (email change case)
+      if (newToken) {
+        setCookie(null, 'oneflow.token', newToken, {
+          maxAge: 30 * 24 * 60 * 60, // 30 days
+          path: '/',
+        })
+      }
+
+      setUser(updatedUser)
+    }
   }
 
   return (

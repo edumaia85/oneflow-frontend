@@ -44,7 +44,7 @@ export function UpdateProfile() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
 
-  const { user, handleLogout } = useAuth()
+  const { user, updateUser } = useAuth()
   const { toast } = useToast()
   const navigate = useNavigate()
 
@@ -63,12 +63,11 @@ export function UpdateProfile() {
 
         const userData: UserResponse = await response.json()
 
-        // Formatando os dados recebidos
         setFormData({
           name: userData.user.name,
-          cpf: formatCPF(userData.user.cpf),
+          cpf: userData.user.cpf,
           email: userData.user.email,
-          telephone: formatTelephone(userData.user.telephone),
+          telephone: userData.user.telephone,
         })
       } catch (err) {
         setError('Erro ao carregar dados do usuário')
@@ -85,32 +84,12 @@ export function UpdateProfile() {
     }
   }, [user?.id, token, toast])
 
-  const formatCPF = (value: string) => {
-    const numbers = value.replace(/\D/g, '')
-    return numbers.replace(/^(\d{3})(\d{3})(\d{3})(\d{2}).*/, '$1.$2.$3-$4')
-  }
-
-  const formatTelephone = (value: string) => {
-    const numbers = value.replace(/\D/g, '')
-    return numbers.replace(/^(\d{2})(\d{5})(\d{4}).*/, '($1) $2-$3')
-  }
-
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
-
-    let formattedValue = value
-
-    if (name === 'cpf') {
-      formattedValue = formatCPF(value)
-    } else if (name === 'telephone') {
-      formattedValue = formatTelephone(value)
-    }
-
     setFormData(prev => ({
       ...prev,
-      [name]: formattedValue,
+      [name]: value,
     }))
-
     setError('')
   }
 
@@ -120,21 +99,23 @@ export function UpdateProfile() {
       return false
     }
 
-    const cpfNumbers = formData.cpf.replace(/\D/g, '')
-    if (cpfNumbers.length !== 11) {
-      setError('CPF inválido')
-      return false
-    }
-
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (!emailRegex.test(formData.email)) {
       setError('E-mail inválido')
       return false
     }
 
-    const phoneNumbers = formData.telephone.replace(/\D/g, '')
-    if (phoneNumbers.length !== 11) {
-      setError('Telefone inválido')
+    // Validate CPF format (XXX.XXX.XXX-XX)
+    const cpfRegex = /^\d{3}\.\d{3}\.\d{3}-\d{2}$/
+    if (!cpfRegex.test(formData.cpf)) {
+      setError('CPF inválido (use o formato XXX.XXX.XXX-XX)')
+      return false
+    }
+
+    // Validate phone format ((XX) XXXXX-XXXX)
+    const phoneRegex = /^\(\d{2}\) \d{5}-\d{4}$/
+    if (!phoneRegex.test(formData.telephone)) {
+      setError('Telefone inválido (use o formato (XX) XXXXX-XXXX)')
       return false
     }
 
@@ -156,27 +137,42 @@ export function UpdateProfile() {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({
-          name: formData.name,
-          cpf: formData.cpf.replace(/\D/g, ''),
-          email: formData.email,
-          telephone: formData.telephone.replace(/\D/g, ''),
-        }),
+        body: JSON.stringify(formData),
       })
 
       if (!response.ok) throw new Error('Falha ao atualizar dados')
 
+      const responseData = await response.json()
+
+      // Check if email was changed
+      if (user?.email !== formData.email) {
+        // If email changed, we expect a new token in the response
+        if (responseData.token) {
+          // Update user data and token in context/cookies
+          updateUser(
+            {
+              ...user,
+              ...formData,
+            },
+            responseData.token
+          )
+        } else {
+          throw new Error('Token não recebido após mudança de email')
+        }
+      } else {
+        // If email wasn't changed, just update user data
+        updateUser({
+          ...user,
+          ...formData,
+        })
+      }
+
       toast({
         title: 'Sucesso',
-        description:
-          'Dados atualizados com sucesso! Você será redirecionado para fazer login novamente.',
+        description: 'Dados atualizados com sucesso!',
       })
 
-      // Espera um pouco para o usuário ver o toast
-      setTimeout(() => {
-        handleLogout()
-        navigate('/')
-      }, 2000)
+      navigate('/dashboard')
     } catch (err) {
       setError('Erro ao atualizar dados. Tente novamente.')
       toast({
@@ -218,6 +214,7 @@ export function UpdateProfile() {
                   onChange={handleChange}
                   className="w-full border border-muted-foreground"
                   disabled={isLoading}
+                  placeholder="Digite seu nome completo"
                 />
               </div>
 
@@ -230,11 +227,11 @@ export function UpdateProfile() {
                   name="cpf"
                   type="text"
                   required
-                  maxLength={14}
                   value={formData.cpf}
                   onChange={handleChange}
                   className="w-full border border-muted-foreground"
                   disabled={isLoading}
+                  placeholder="XXX.XXX.XXX-XX"
                 />
               </div>
 
@@ -251,6 +248,7 @@ export function UpdateProfile() {
                   onChange={handleChange}
                   className="w-full border border-muted-foreground"
                   disabled={isLoading}
+                  placeholder="seu@email.com"
                 />
               </div>
 
@@ -263,11 +261,11 @@ export function UpdateProfile() {
                   name="telephone"
                   type="text"
                   required
-                  maxLength={15}
                   value={formData.telephone}
                   onChange={handleChange}
                   className="w-full border border-muted-foreground"
                   disabled={isLoading}
+                  placeholder="(XX) XXXXX-XXXX"
                 />
               </div>
 
