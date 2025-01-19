@@ -48,12 +48,18 @@ import {
   PaginationPrevious,
 } from '@/components/ui/pagination'
 
+interface Sector {
+  sectorId: string
+  name: string
+}
+
 interface Meeting {
   meetingId: string
   title: string
   description: string
   meetingDate: string
   meetingStatus: 'FINALIZADA' | 'PENDENTE' | 'CANCELADA'
+  sector: Sector
   sectorId: string
 }
 
@@ -482,7 +488,7 @@ export function Meetings() {
                 <TableCell>{formatDate(meeting.meetingDate)}</TableCell>
                 <TableCell>{formatStatus(meeting.meetingStatus)}</TableCell>
                 <TableCell>
-                  {sectors.find(s => s.id === meeting.sectorId)?.name}
+                  {meeting.sector.name}
                 </TableCell>
                 <TableCell>
                   <div className="flex items-center gap-2">
