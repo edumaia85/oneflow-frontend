@@ -8,25 +8,6 @@ import { parseCookies } from 'nookies'
 import { useNavigate } from 'react-router-dom'
 import { useToast } from '@/hooks/use-toast'
 
-interface Sector {
-  sectorId: number
-  name: string
-}
-
-interface UserResponse {
-  user: {
-    userId: number
-    name: string
-    cpf: string
-    email: string
-    telephone: string
-    role: string
-    imageUrl: string | null
-    sector: Sector
-  }
-  token: string | null
-}
-
 interface UserData {
   name: string
   cpf: string
@@ -40,7 +21,6 @@ export function UpdateProfile() {
   const navigate = useNavigate()
   const { 'oneflow.token': token } = parseCookies()
 
-  // Inicializa o formData com os dados do usuário atual
   const [formData, setFormData] = useState<UserData>({
     name: user?.name || '',
     cpf: user?.cpf || '',
