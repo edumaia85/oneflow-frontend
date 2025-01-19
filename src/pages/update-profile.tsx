@@ -1,4 +1,4 @@
-import { useState, useEffect, type FormEvent, type ChangeEvent } from 'react'
+import { useState, type FormEvent, type ChangeEvent } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -35,54 +35,20 @@ interface UserData {
 }
 
 export function UpdateProfile() {
-  const [formData, setFormData] = useState<UserData>({
-    name: '',
-    cpf: '',
-    email: '',
-    telephone: '',
-  })
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState('')
-
   const { user, updateUser } = useAuth()
   const { toast } = useToast()
   const navigate = useNavigate()
-
   const { 'oneflow.token': token } = parseCookies()
 
-  useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const response = await fetch(`${baseURL}/users/${user?.id}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
-
-        if (!response.ok) throw new Error('Falha ao carregar dados do usuário')
-
-        const userData: UserResponse = await response.json()
-
-        setFormData({
-          name: userData.user.name,
-          cpf: userData.user.cpf,
-          email: userData.user.email,
-          telephone: userData.user.telephone,
-        })
-      } catch (err) {
-        setError('Erro ao carregar dados do usuário')
-        toast({
-          variant: 'destructive',
-          title: 'Erro',
-          description: 'Não foi possível carregar os dados do usuário',
-        })
-      }
-    }
-
-    if (user?.id) {
-      fetchUserData()
-    }
-  }, [user?.id, token, toast])
+  // Inicializa o formData com os dados do usuário atual
+  const [formData, setFormData] = useState<UserData>({
+    name: user?.name || '',
+    cpf: user?.cpf || '',
+    email: user?.email || '',
+    telephone: user?.telephone || '',
+  })
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState('')
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
