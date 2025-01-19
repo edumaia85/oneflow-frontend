@@ -46,7 +46,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useToast } from '@/hooks/use-toast'
-import { NavLink, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { Checkbox } from '@/components/ui/checkbox'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 
@@ -108,7 +108,6 @@ export function Financial() {
   const [users, setUsers] = useState<User[]>([])
   const [customers, setCustomers] = useState<Customer[]>([])
   const [selectedUsers, setSelectedUsers] = useState<number[]>([])
-  const [isLoading, setIsLoading] = useState<boolean>(false)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [projectToDelete, setProjectToDelete] = useState<Project | null>(null)

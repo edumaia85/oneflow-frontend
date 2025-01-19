@@ -6,7 +6,6 @@ import { type ChangeEvent, type FormEvent, useEffect, useState } from 'react'
 import logoImg from '../assets/images/logo.svg'
 import { useAuth } from '@/contexts/auth-context'
 import { useNavigate } from 'react-router-dom'
-import { useToast } from '@/hooks/use-toast'
 
 export function Login() {
   const [showPassword, setShowPassword] = useState(false)

@@ -7,7 +7,6 @@ import {
 } from 'react'
 import { setCookie, parseCookies, destroyCookie } from 'nookies'
 import { baseURL } from '@/utils/constants'
-import { useToast } from '@/hooks/use-toast'
 
 interface UserProps {
   id: string
