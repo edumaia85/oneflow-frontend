@@ -39,7 +39,7 @@ export function Profile() {
 
   return (
     <div className="relative min-h-screen display flex flex-col gap-8">
-      <div className="bg-gradient-to-r from-[#ec9640] to-[#1a47bb] h-80 w-full" />
+      <div className="bg-gradient-to-r from-[#ec9640] to-[#1a47bb] h-96 w-full" />
       {/* Informações do usuário */}
       <section className="absolute w-full flex flex-col items-center top-0 py-2 text-white gap-4">
         <h1 className="text-3xl font-bold">Meu perfil</h1>
