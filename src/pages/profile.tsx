@@ -50,6 +50,8 @@ export function Profile() {
         />
         <p className="text-xl font-medium">{user?.name}</p>
         <p className="text-xl font-medium">Email: {user?.email}</p>
+        <p className="text-xl font-medium">CPF: {user?.cpf}</p>
+        <p className="text-xl font-medium">Contato: {user?.telephone}</p>
       </section>
 
       <div className="w-full flex items-center justify-center">
