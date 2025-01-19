@@ -68,6 +68,12 @@ interface UsersResponse {
   totalPages: number
 }
 
+interface ApiErrorResponse {
+  status: number
+  message: string
+  fieldsMessage?: string[]
+}
+
 export function Presidency() {
   const [users, setUsers] = useState<User[]>([])
   const [sectors, setSectors] = useState<Sector[]>([])
@@ -191,8 +197,10 @@ export function Presidency() {
         }),
       })
 
+      const data = await response.json()
+
       if (!response.ok) {
-        throw new Error('Falha ao atualizar cargo')
+        throw data
       }
 
       await fetchUsers()
@@ -200,15 +208,17 @@ export function Presidency() {
       setUserToUpdate(null)
       setNewRole('')
       toast({
-        title: 'Cargo atualizado com sucesso!',
-        description: 'O cargo do usuário foi atualizado com sucesso.',
+        title: 'Sucesso',
+        description: data.message || 'Cargo atualizado com sucesso!',
       })
     } catch (err) {
       console.error('Erro ao atualizar cargo:', err)
+      const error = err as ApiErrorResponse
       toast({
-        title: 'Erro ao atualizar cargo!',
-        description:
-          'Erro ao tentar atualizar o cargo. Tente novamente mais tarde.',
+        title: 'Erro',
+        description: error.fieldsMessage
+          ? error.fieldsMessage.join(', ')
+          : error.message || 'Erro ao atualizar cargo.',
         variant: 'destructive',
       })
     } finally {
@@ -272,8 +282,10 @@ export function Presidency() {
         body: JSON.stringify(newUser),
       })
 
+      const data = await response.json()
+
       if (!response.ok) {
-        throw new Error('Falha ao criar usuário')
+        throw data
       }
 
       await fetchUsers()
@@ -288,15 +300,17 @@ export function Presidency() {
         sectorId: '',
       })
       toast({
-        title: 'Usuário adicionado com sucesso!',
-        description: 'Novo usuário foi adicionado com sucesso.',
+        title: 'Sucesso',
+        description: data.message || 'Usuário adicionado com sucesso!',
       })
     } catch (err) {
       console.error('Erro ao criar usuário:', err)
+      const error = err as ApiErrorResponse
       toast({
-        title: 'Erro ao adicionar usuário!',
-        description:
-          'Erro ao tentar adicionar novo usuário. Tente novamente mais tarde.',
+        title: 'Erro',
+        description: error.fieldsMessage
+          ? error.fieldsMessage.join(', ')
+          : error.message || 'Erro ao tentar adicionar novo usuário.',
         variant: 'destructive',
       })
     } finally {
@@ -313,23 +327,27 @@ export function Presidency() {
         },
       })
 
+      const data = await response.json()
+
       if (!response.ok) {
-        throw new Error('Falha ao deletar usuário')
+        throw data
       }
 
       setUsers(users.filter(user => user.userId !== userId))
       setIsDeleteDialogOpen(false)
       setUserToDelete(null)
       toast({
-        title: 'Usuário deletado com sucesso!',
-        description: 'Usuário foi deletado da base de dados com sucesso.',
+        title: 'Sucesso',
+        description: data.message || 'Usuário deletado com sucesso!',
       })
     } catch (err) {
       console.error('Erro ao deletar usuário:', err)
+      const error = err as ApiErrorResponse
       toast({
-        title: 'Erro ao deletar usuário!',
-        description:
-          'Erro ao tentar deletar novo usuário. Tente novamente mais tarde.',
+        title: 'Erro',
+        description: error.fieldsMessage
+          ? error.fieldsMessage.join(', ')
+          : error.message || 'Erro ao deletar usuário.',
         variant: 'destructive',
       })
     }
@@ -498,7 +516,9 @@ export function Presidency() {
                 <TableHead className="min-w-[120px]">Contato</TableHead>
                 <TableHead className="min-w-[100px]">Cargo</TableHead>
                 <TableHead className="min-w-[120px]">Setor</TableHead>
-                <TableHead className="min-w-[100px] text-center" colSpan={2}>Ações</TableHead>
+                <TableHead className="min-w-[100px] text-center" colSpan={2}>
+                  Ações
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
