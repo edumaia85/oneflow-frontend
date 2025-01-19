@@ -50,7 +50,6 @@ const initialFormData: DocumentFormData = {
 export function Documents() {
   const { sectorId } = useParams()
   const [documents, setDocuments] = useState<DocumentLink[]>([])
-  const [isLoading, setIsLoading] = useState<boolean>(false)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
@@ -67,7 +66,6 @@ export function Documents() {
 
   const fetchDocuments = async () => {
     try {
-      setIsLoading(true)
       const response = await fetch(
         `${baseURL}/documents?page=0&sectorId=${sectorId}`,
         {
@@ -89,7 +87,6 @@ export function Documents() {
         variant: 'destructive',
       })
     } finally {
-      setIsLoading(false)
     }
   }
 

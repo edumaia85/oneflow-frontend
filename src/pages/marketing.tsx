@@ -7,8 +7,24 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination'
 import { baseURL } from '@/utils/constants'
-import { CalendarIcon, DeleteIcon, EyeIcon, PencilIcon, PlusIcon } from 'lucide-react'
+import {
+  CalendarIcon,
+  DeleteIcon,
+  EyeIcon,
+  Loader2Icon,
+  PencilIcon,
+  PlusIcon,
+} from 'lucide-react'
 import { parseCookies } from 'nookies'
 import { useCallback, useEffect, useState } from 'react'
 import {
@@ -100,6 +116,9 @@ export function Marketing() {
   const [isUsersDialogOpen, setIsUsersDialogOpen] = useState(false)
   const [selectedProjectUsers, setSelectedProjectUsers] = useState<User[]>([])
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [currentPage, setCurrentPage] = useState(0)
+  const [totalPages, setTotalPages] = useState(0)
   const [newProject, setNewProject] = useState({
     name: '',
     description: '',
@@ -121,15 +140,90 @@ export function Marketing() {
       .join(' ')
   }
 
+  const PaginationControls = () => {
+    const maxPages = Math.min(5, totalPages)
+    const startPage = Math.max(
+      0,
+      Math.min(currentPage - Math.floor(maxPages / 2), totalPages - maxPages)
+    )
+    const endPage = Math.min(totalPages, startPage + maxPages)
+    const pages = Array.from(
+      { length: endPage - startPage },
+      (_, i) => startPage + i
+    )
+
+    return (
+      <Pagination className="mt-4">
+        <PaginationContent className="flex-wrap justify-center gap-2">
+          <PaginationItem>
+            <PaginationPrevious
+              onClick={() => setCurrentPage(prev => Math.max(0, prev - 1))}
+              className={`${currentPage === 0 || isLoading ? 'pointer-events-none opacity-50' : 'cursor-pointer'}`}
+            />
+          </PaginationItem>
+
+          {startPage > 0 && (
+            <>
+              <PaginationItem className="hidden sm:block">
+                <PaginationLink onClick={() => setCurrentPage(0)}>
+                  1
+                </PaginationLink>
+              </PaginationItem>
+              <PaginationItem className="hidden sm:block">
+                <PaginationEllipsis />
+              </PaginationItem>
+            </>
+          )}
+
+          {pages.map(page => (
+            <PaginationItem key={page}>
+              <PaginationLink
+                onClick={() => setCurrentPage(page)}
+                isActive={currentPage === page}
+              >
+                {page + 1}
+              </PaginationLink>
+            </PaginationItem>
+          ))}
+
+          {endPage < totalPages && (
+            <>
+              <PaginationItem className="hidden sm:block">
+                <PaginationEllipsis />
+              </PaginationItem>
+              <PaginationItem className="hidden sm:block">
+                <PaginationLink onClick={() => setCurrentPage(totalPages - 1)}>
+                  {totalPages}
+                </PaginationLink>
+              </PaginationItem>
+            </>
+          )}
+
+          <PaginationItem>
+            <PaginationNext
+              onClick={() =>
+                setCurrentPage(prev => Math.min(totalPages - 1, prev + 1))
+              }
+              className={`${currentPage === totalPages - 1 || isLoading ? 'pointer-events-none opacity-50' : 'cursor-pointer'}`}
+            />
+          </PaginationItem>
+        </PaginationContent>
+      </Pagination>
+    )
+  }
+
   const fetchProjects = useCallback(async () => {
     try {
       setIsLoading(true)
-      const response = await fetch(`${baseURL}/projects?page=0&sectorId=4`, {
-        method: 'GET',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
+      const response = await fetch(
+        `${baseURL}/projects?page=${currentPage}&sectorId=4`,
+        {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
 
       if (!response.ok) {
         throw new Error('Falha ao buscar projetos')
@@ -137,12 +231,13 @@ export function Marketing() {
 
       const data: ProjectsResponse = await response.json()
       setProjects(data.content)
+      setTotalPages(data.totalPages)
     } catch (err) {
       console.error('Erro ao buscar projetos:', err)
     } finally {
       setIsLoading(false)
     }
-  }, [token])
+  }, [token, currentPage])
 
   const fetchUsers = useCallback(async () => {
     try {
@@ -203,6 +298,7 @@ export function Marketing() {
 
   const handleCreateProject = async () => {
     try {
+      setIsSubmitting(true)
       const projectData = {
         ...newProject,
         userIds: selectedUsers,
@@ -245,6 +341,8 @@ export function Marketing() {
           'Houve um erro ao tentar criar o projeto. Tente novamente mais tarde.',
         variant: 'destructive',
       })
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -479,16 +577,35 @@ export function Marketing() {
                     ))}
                   </div>
                 </div>
-                <Button onClick={handleCreateProject}>Criar Projeto</Button>
+                <Button onClick={handleCreateProject} disabled={isSubmitting}>
+                  {isSubmitting ? (
+                    <>
+                      <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
+                      Criando...
+                    </>
+                  ) : (
+                    'Criar Projeto'
+                  )}
+                </Button>
               </div>
             </DialogContent>
           </Dialog>
-          <Button className="flex items-center justify-center gap-2 rounded-2xl w-[130px]">
+          <Button
+            className="flex items-center justify-center gap-2 rounded-2xl w-[130px]"
+            onClick={() => {
+              navigate('/dashboard/reunioes/4')
+            }}
+          >
             <CalendarIcon className="size-2" />
-            <NavLink to='/dashboard/reunioes/4'>Reuniões</NavLink>
+            Reuniões
           </Button>
         </div>
-        <Button className="rounded-2xl w-[130px]" onClick={() => {navigate('/dashboard/documentos/4')}}>
+        <Button
+          className="rounded-2xl w-[130px]"
+          onClick={() => {
+            navigate('/dashboard/documentos/4')
+          }}
+        >
           Documentos
         </Button>
       </div>
@@ -561,6 +678,8 @@ export function Marketing() {
           ))}
         </TableBody>
       </Table>
+
+      <PaginationControls />
 
       <Dialog open={isUsersDialogOpen} onOpenChange={setIsUsersDialogOpen}>
         <DialogContent>

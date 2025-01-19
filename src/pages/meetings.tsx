@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from 'react'
-import { CalendarIcon, Plus, PencilIcon, DeleteIcon } from 'lucide-react'
+import { CalendarIcon, Plus, PencilIcon, DeleteIcon, Loader2Icon } from 'lucide-react'
 import { baseURL } from '@/utils/constants'
 import {
   Dialog,
@@ -38,6 +38,15 @@ import {
 import { parseCookies } from 'nookies'
 import { useToast } from '@/hooks/use-toast'
 import { useParams } from 'react-router-dom'
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination'
 
 interface Meeting {
   meetingId: string
@@ -68,6 +77,9 @@ export function Meetings() {
   const [date, setDate] = useState<Date>()
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [currentPage, setCurrentPage] = useState(0)
+  const [totalPages, setTotalPages] = useState(0)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const { 'oneflow.token': token } = parseCookies()
   const { toast } = useToast()
@@ -106,21 +118,97 @@ export function Meetings() {
     setDate(undefined)
   }, [])
 
+  const PaginationControls = () => {
+    const maxPages = Math.min(5, totalPages)
+    const startPage = Math.max(
+      0,
+      Math.min(currentPage - Math.floor(maxPages / 2), totalPages - maxPages)
+    )
+    const endPage = Math.min(totalPages, startPage + maxPages)
+    const pages = Array.from(
+      { length: endPage - startPage },
+      (_, i) => startPage + i
+    )
+
+    return (
+      <Pagination className="mt-4">
+        <PaginationContent className="flex-wrap justify-center gap-2">
+          <PaginationItem>
+            <PaginationPrevious
+              onClick={() => setCurrentPage(prev => Math.max(0, prev - 1))}
+              className={`${currentPage === 0 || isLoading ? 'pointer-events-none opacity-50' : 'cursor-pointer'}`}
+            />
+          </PaginationItem>
+
+          {startPage > 0 && (
+            <>
+              <PaginationItem className="hidden sm:block">
+                <PaginationLink onClick={() => setCurrentPage(0)}>
+                  1
+                </PaginationLink>
+              </PaginationItem>
+              <PaginationItem className="hidden sm:block">
+                <PaginationEllipsis />
+              </PaginationItem>
+            </>
+          )}
+
+          {pages.map(page => (
+            <PaginationItem key={page}>
+              <PaginationLink
+                onClick={() => setCurrentPage(page)}
+                isActive={currentPage === page}
+              >
+                {page + 1}
+              </PaginationLink>
+            </PaginationItem>
+          ))}
+
+          {endPage < totalPages && (
+            <>
+              <PaginationItem className="hidden sm:block">
+                <PaginationEllipsis />
+              </PaginationItem>
+              <PaginationItem className="hidden sm:block">
+                <PaginationLink onClick={() => setCurrentPage(totalPages - 1)}>
+                  {totalPages}
+                </PaginationLink>
+              </PaginationItem>
+            </>
+          )}
+
+          <PaginationItem>
+            <PaginationNext
+              onClick={() =>
+                setCurrentPage(prev => Math.min(totalPages - 1, prev + 1))
+              }
+              className={`${currentPage === totalPages - 1 || isLoading ? 'pointer-events-none opacity-50' : 'cursor-pointer'}`}
+            />
+          </PaginationItem>
+        </PaginationContent>
+      </Pagination>
+    )
+  }
+
   const fetchMeetings = useCallback(async () => {
     setIsLoading(true)
     setError(null)
     try {
-      const response = await fetch(`${baseURL}/meetings?page=0&sectorId=${sectorId}`, {
-        method: 'GET',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
+      const response = await fetch(
+        `${baseURL}/meetings?page=${currentPage}&sectorId=${sectorId}`,
+        {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
       if (!response.ok) {
         throw new Error('Failed to fetch meetings')
       }
       const data: MeetingsResponse = await response.json()
       setMeetings(data.content)
+      setTotalPages(data.totalPages)
     } catch (error) {
       console.error('Error fetching meetings:', error)
       setError('Failed to load meetings')
@@ -128,7 +216,7 @@ export function Meetings() {
     } finally {
       setIsLoading(false)
     }
-  }, [token, sectorId])
+  }, [token, sectorId, currentPage])
 
   const fetchSectors = useCallback(async () => {
     try {
@@ -155,6 +243,7 @@ export function Meetings() {
 
   const handleSubmit = useCallback(async () => {
     try {
+      setIsSubmitting(true)
       const method = editingMeeting ? 'PUT' : 'POST'
       const url = editingMeeting
         ? `${baseURL}/meetings/${editingMeeting.meetingId}`
@@ -174,14 +263,13 @@ export function Meetings() {
         setIsDialogOpen(false)
         resetForm()
         setEditingMeeting(null)
+        toast({
+          title: 'Reunião adicionada com sucesso!',
+          description: 'A reunião foi criada/atualizada com sucesso.',
+        })
       } else {
         throw new Error('Failed to save meeting')
       }
-
-      toast({
-        title: 'Reunião adicionada com sucesso!',
-        description: 'A reunião foi criada/atualizada com sucesso.',
-      })
     } catch (error) {
       console.error('Error saving meeting:', error)
       setError('Failed to save meeting')
@@ -191,6 +279,8 @@ export function Meetings() {
           'Houve um erro ao tentar criar/atualizar a reunião. Tente novamente mais tarde.',
         variant: 'destructive',
       })
+    } finally {
+      setIsSubmitting(false)
     }
   }, [editingMeeting, formData, token, fetchMeetings, resetForm, toast])
 
@@ -351,8 +441,17 @@ export function Meetings() {
                   >
                     Cancelar
                   </Button>
-                  <Button onClick={handleSubmit}>
-                    {editingMeeting ? 'Salvar alterações' : 'Criar Reunião'}
+                  <Button onClick={handleSubmit} disabled={isSubmitting}>
+                    {isSubmitting ? (
+                      <>
+                        <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
+                        {editingMeeting ? 'Salvando...' : 'Criando...'}
+                      </>
+                    ) : editingMeeting ? (
+                      'Salvar alterações'
+                    ) : (
+                      'Criar Reunião'
+                    )}
                   </Button>
                 </DialogFooter>
               </div>
@@ -453,6 +552,8 @@ export function Meetings() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <PaginationControls />
     </div>
   )
 }

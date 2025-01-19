@@ -12,6 +12,7 @@ import {
   CalendarIcon,
   DeleteIcon,
   Eye,
+  Loader2Icon,
   PencilIcon,
   PlusIcon,
 } from 'lucide-react'
@@ -33,6 +34,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useToast } from '@/hooks/use-toast'
@@ -106,6 +116,9 @@ export function Financial() {
   const [isUsersDialogOpen, setIsUsersDialogOpen] = useState(false)
   const [selectedProjectUsers, setSelectedProjectUsers] = useState<User[]>([])
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
+  const [currentPage, setCurrentPage] = useState(0)
+  const [totalPages, setTotalPages] = useState(0)
   const [newProject, setNewProject] = useState({
     name: '',
     description: '',
@@ -127,15 +140,90 @@ export function Financial() {
       .join(' ')
   }
 
+  const PaginationControls = () => {
+    const maxPages = Math.min(5, totalPages)
+    const startPage = Math.max(
+      0,
+      Math.min(currentPage - Math.floor(maxPages / 2), totalPages - maxPages)
+    )
+    const endPage = Math.min(totalPages, startPage + maxPages)
+    const pages = Array.from(
+      { length: endPage - startPage },
+      (_, i) => startPage + i
+    )
+
+    return (
+      <Pagination className="mt-4">
+        <PaginationContent className="flex-wrap justify-center gap-2">
+          <PaginationItem>
+            <PaginationPrevious
+              onClick={() => setCurrentPage(prev => Math.max(0, prev - 1))}
+              className={`${currentPage === 0 || isSubmitting ? 'pointer-events-none opacity-50' : 'cursor-pointer'}`}
+            />
+          </PaginationItem>
+
+          {startPage > 0 && (
+            <>
+              <PaginationItem className="hidden sm:block">
+                <PaginationLink onClick={() => setCurrentPage(0)}>
+                  1
+                </PaginationLink>
+              </PaginationItem>
+              <PaginationItem className="hidden sm:block">
+                <PaginationEllipsis />
+              </PaginationItem>
+            </>
+          )}
+
+          {pages.map(page => (
+            <PaginationItem key={page}>
+              <PaginationLink
+                onClick={() => setCurrentPage(page)}
+                isActive={currentPage === page}
+              >
+                {page + 1}
+              </PaginationLink>
+            </PaginationItem>
+          ))}
+
+          {endPage < totalPages && (
+            <>
+              <PaginationItem className="hidden sm:block">
+                <PaginationEllipsis />
+              </PaginationItem>
+              <PaginationItem className="hidden sm:block">
+                <PaginationLink onClick={() => setCurrentPage(totalPages - 1)}>
+                  {totalPages}
+                </PaginationLink>
+              </PaginationItem>
+            </>
+          )}
+
+          <PaginationItem>
+            <PaginationNext
+              onClick={() =>
+                setCurrentPage(prev => Math.min(totalPages - 1, prev + 1))
+              }
+              className={`${currentPage === totalPages - 1 || isSubmitting ? 'pointer-events-none opacity-50' : 'cursor-pointer'}`}
+            />
+          </PaginationItem>
+        </PaginationContent>
+      </Pagination>
+    )
+  }
+
   const fetchProjects = useCallback(async () => {
     try {
-      setIsLoading(true)
-      const response = await fetch(`${baseURL}/projects?page=0&sectorId=2`, {
-        method: 'GET',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
+      setIsSubmitting(true)
+      const response = await fetch(
+        `${baseURL}/projects?page=${currentPage}&sectorId=2`,
+        {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
 
       if (!response.ok) {
         throw new Error('Falha ao buscar projetos')
@@ -143,15 +231,17 @@ export function Financial() {
 
       const data: ProjectsResponse = await response.json()
       setProjects(data.content)
+      setTotalPages(data.totalPages)
     } catch (err) {
       console.error('Erro ao buscar projetos:', err)
     } finally {
-      setIsLoading(false)
+      setIsSubmitting(false)
     }
-  }, [token])
+  }, [token, currentPage])
 
   const fetchUsers = useCallback(async () => {
     try {
+      setIsSubmitting(true)
       const response = await fetch(`${baseURL}/users?page=0`, {
         method: 'GET',
         headers: {
@@ -167,11 +257,14 @@ export function Financial() {
       setUsers(data.content)
     } catch (err) {
       console.error('Erro ao buscar usuários:', err)
+    } finally {
+      setIsSubmitting(false)
     }
   }, [token])
 
   const fetchCustomers = useCallback(async () => {
     try {
+      setIsSubmitting(true)
       const response = await fetch(`${baseURL}/customers?page=0`, {
         method: 'GET',
         headers: {
@@ -187,6 +280,8 @@ export function Financial() {
       setCustomers(data.content)
     } catch (err) {
       console.error('Erro ao buscar clientes:', err)
+    } finally {
+      setIsSubmitting(false)
     }
   }, [token])
 
@@ -485,13 +580,27 @@ export function Financial() {
                     ))}
                   </div>
                 </div>
-                <Button onClick={handleCreateProject}>Criar Projeto</Button>
+                <Button onClick={handleCreateProject} disabled={isSubmitting}>
+                  {isSubmitting ? (
+                    <>
+                      <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
+                      Criando...
+                    </>
+                  ) : (
+                    'Criar projeto'
+                  )}
+                </Button>
               </div>
             </DialogContent>
           </Dialog>
-          <Button className="flex items-center justify-center gap-2 rounded-2xl w-[130px]">
+          <Button
+            className="flex items-center justify-center gap-2 rounded-2xl w-[130px]"
+            onClick={() => {
+              navigate('/dashboard/reunioes/2')
+            }}
+          >
             <CalendarIcon className="size-2" />
-            <NavLink to="/dashboard/reunioes/2">Reuniões</NavLink>
+            Reuniões
           </Button>
         </div>
         <Button
@@ -572,6 +681,8 @@ export function Financial() {
           ))}
         </TableBody>
       </Table>
+
+      <PaginationControls />
 
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent className="max-h-[90vh] overflow-y-auto">

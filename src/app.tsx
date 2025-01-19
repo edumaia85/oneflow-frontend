@@ -1,6 +1,6 @@
 import {
-  createBrowserRouter,
-  // createHashRouter,
+  // createBrowserRouter,
+  createHashRouter,
   createRoutesFromElements,
   Route,
   RouterProvider,
@@ -16,7 +16,7 @@ import { Profile } from './pages/profile'
 import { UpdateProfileImage } from './pages/update-profile-image'
 import { Presidency } from './pages/presidency'
 import { Toaster } from './components/ui/toaster'
-import { Documents, GeneralDocuments } from './pages/documents'
+import { Documents } from './pages/documents'
 import { Customers } from './pages/customers'
 import { Marketing } from './pages/marketing'
 import { PeopleManagement } from './pages/people-management'
@@ -25,7 +25,7 @@ import { Meetings } from './pages/meetings'
 import { ForgotPassword } from './pages/forgot-password'
 import { UpdateProfile } from './pages/update-profile'
 
-const router = createBrowserRouter(
+const router = createHashRouter(
   createRoutesFromElements(
     <Fragment>
       <Route element={<ProtectedRoute />}>

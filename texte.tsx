@@ -512,6 +512,10 @@ export function Customers() {
                     />
                   </div>
                 </div>
+
+                <Button onClick={handleCreateCustomer}>
+                  Cadastrar cliente
+                </Button>
               </div>
               <Button onClick={handleCreateCustomer} disabled={isSubmitting}>
                 {isSubmitting ? (
