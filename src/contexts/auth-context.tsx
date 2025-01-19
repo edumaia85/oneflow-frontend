@@ -26,6 +26,7 @@ interface AuthContextProps {
   user: UserProps | null
   handleLogin: (email: string, password: string) => Promise<void>
   handleLogout: () => void
+  updateUser: (userData: UserProps) => void
 }
 
 interface AuthContextProviderProps {
@@ -91,8 +92,18 @@ export const AuthProvider = ({ children }: AuthContextProviderProps) => {
     setUser(null)
   }
 
+  const updateUser = (userData: UserProps) => {
+    setCookie(null, 'oneflow.user', JSON.stringify(userData), {
+      maxAge: 30 * 24 * 60 * 60, // 30 days
+      path: '/',
+    })
+    setUser(userData)
+  }
+
   return (
-    <AuthContext.Provider value={{ user, handleLogin, handleLogout }}>
+    <AuthContext.Provider
+      value={{ user, handleLogin, handleLogout, updateUser }}
+    >
       {children}
     </AuthContext.Provider>
   )

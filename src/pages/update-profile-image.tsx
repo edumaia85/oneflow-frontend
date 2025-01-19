@@ -13,7 +13,7 @@ export function UpdateProfileImage(): JSX.Element {
   const [file, setFile] = useState<File | null>(null)
 
   const navigate = useNavigate()
-  const { handleLogout } = useAuth()
+  const { updateUser } = useAuth()
   const { 'oneflow.token': token } = parseCookies()
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -48,13 +48,15 @@ export function UpdateProfileImage(): JSX.Element {
       })
 
       if (response.ok) {
+        const userData = await response.json()
+        updateUser(userData)
+
         toast({
           title: 'Foto de perfil atualizada!',
           description: 'Sua foto de perfil foi adicionada com sucesso.',
         })
 
-        handleLogout()
-        navigate('/')
+        navigate('/dashboard/perfil')
       } else {
         toast({
           title: 'Erro ao atualizar foto de perfil',
