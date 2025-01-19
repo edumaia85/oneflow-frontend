@@ -75,7 +75,6 @@ interface Sector {
 
 export function Meetings() {
   const [meetings, setMeetings] = useState<Meeting[]>([])
-  const [sectors, setSectors] = useState<Sector[]>([])
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [editingMeeting, setEditingMeeting] = useState<Meeting | null>(null)
@@ -224,28 +223,10 @@ export function Meetings() {
     }
   }, [token, sectorId, currentPage])
 
-  const fetchSectors = useCallback(async () => {
-    try {
-      const response = await fetch(`${baseURL}/sectors`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-      if (!response.ok) {
-        throw new Error('Failed to fetch sectors')
-      }
-      const data = await response.json()
-      setSectors(Array.isArray(data) ? data : [])
-    } catch (error) {
-      console.error('Error fetching sectors:', error)
-      setSectors([])
-    }
-  }, [token])
 
   useEffect(() => {
     fetchMeetings()
-    fetchSectors()
-  }, [fetchMeetings, fetchSectors])
+  }, [fetchMeetings])
 
   const handleSubmit = useCallback(async () => {
     try {
