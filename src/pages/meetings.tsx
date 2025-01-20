@@ -296,14 +296,27 @@ export function Meetings() {
           },
         })
 
-        const data = await response.json()
+        if (!response.ok) {
+          const errorData = await response.json()
+          throw errorData
+        }
+
+        let data
+        const contentType = response.headers.get('content-type')
+        if (
+          contentType &&
+          contentType.includes('application/json') &&
+          response.status !== 204
+        ) {
+          data = await response.json()
+        }
 
         await fetchMeetings()
         setIsDeleteDialogOpen(false)
         setMeetingToDelete(null)
         toast({
           title: 'Sucesso!',
-          description: data.message || 'Reunião deletada com sucesso.'
+          description: data.message || 'Reunião deletada com sucesso.',
         })
       } catch (err) {
         console.error('Erro ao deletar reunião:', err)

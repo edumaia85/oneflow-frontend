@@ -432,7 +432,16 @@ export function Projects() {
         },
       })
 
-      const data = await response.json()
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw errorData
+      }
+
+      let data
+      const contentType = response.headers.get("content-type")
+      if (contentType && contentType.includes("application/json") && response.status !== 204) {
+        data = await response.json()
+      }
 
 
       if (!response.ok) {

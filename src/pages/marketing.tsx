@@ -319,10 +319,15 @@ export function Marketing() {
         body: JSON.stringify(projectData),
       })
 
-      const data = await response.json()
-
       if (!response.ok) {
-        throw data
+        const errorData = await response.json()
+        throw errorData
+      }
+
+      let data
+      const contentType = response.headers.get("content-type")
+      if (contentType && contentType.includes("application/json") && response.status !== 204) {
+        data = await response.json()
       }
 
       await fetchProjects()
