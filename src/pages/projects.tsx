@@ -431,7 +431,7 @@ export function Projects() {
           Authorization: `Bearer ${token}`,
         },
       })
-  
+
       if (!response.ok) {
         try {
           const errorData = await response.json()
@@ -440,19 +440,22 @@ export function Projects() {
           throw new Error(response.statusText)
         }
       }
-  
+
       const contentType = response.headers.get('content-type')
-      const data = contentType?.includes('application/json') ? await response.json() : null
-  
-      setProjects(prevProjects => prevProjects.filter(project => project.projectId !== projectId))
+      const data = contentType?.includes('application/json')
+        ? await response.json()
+        : null
+
+      setProjects(prevProjects =>
+        prevProjects.filter(project => project.projectId !== projectId)
+      )
       setIsDeleteDialogOpen(false)
       setProjectToDelete(null)
-      
+
       toast({
         title: 'Sucesso',
         description: data?.message || 'Projeto deletado com sucesso!',
       })
-  
     } catch (err) {
       console.error('Erro ao deletar projeto:', err)
       const error = err as ApiErrorResponse
@@ -934,7 +937,14 @@ export function Projects() {
                 handleDeleteProject(projectToDelete.projectId)
               }
             >
-              Confirmar exclusão
+              {isSubmitting ? (
+                <>
+                  <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
+                  Excluindo...
+                </>
+              ) : (
+                'Confirmar exclusão'
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>

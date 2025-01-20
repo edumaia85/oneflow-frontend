@@ -933,7 +933,14 @@ export function Financial() {
                 handleDeleteProject(projectToDelete.projectId)
               }
             >
-              Confirmar exclusão
+              {isSubmitting ? (
+                <>
+                  <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
+                  Excluindo...
+                </>
+              ) : (
+                'Confirmar exclusão'
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>
