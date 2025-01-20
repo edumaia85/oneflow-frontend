@@ -84,10 +84,11 @@ export function Presidency() {
   const [currentPage, setCurrentPage] = useState(0)
   const [totalPages, setTotalPages] = useState(0)
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [isRoleDialogOpen, setIsRoleDialogOpen] = useState(false)
   const [userToUpdate, setUserToUpdate] = useState<User | null>(null)
   const [newRole, setNewRole] = useState<UserRole | ''>('')
   const [isUpdatingRole, setIsUpdatingRole] = useState(false)
+  const [newSectorId, setNewSectorId] = useState<string>('')
+  const [isUpdateDialogOpen, setIsUpdateDialogOpen] = useState(false)
 
   const [newUser, setNewUser] = useState({
     name: '',
@@ -179,8 +180,8 @@ export function Presidency() {
     )
   }
 
-  const handleUpdateUserRole = async () => {
-    if (!userToUpdate || !newRole) return
+  const handleUpdateUserRoleAndSector = async () => {
+    if (!userToUpdate || !newRole || !newSectorId) return
 
     try {
       setIsUpdatingRole(true)
@@ -193,7 +194,7 @@ export function Presidency() {
         body: JSON.stringify({
           userId: userToUpdate.userId,
           role: newRole,
-          sectorId: userToUpdate.sector.sectorId,
+          sectorId: newSectorId,
         }),
       })
 
@@ -204,21 +205,22 @@ export function Presidency() {
       }
 
       await fetchUsers()
-      setIsRoleDialogOpen(false)
+      setIsUpdateDialogOpen(false)
       setUserToUpdate(null)
       setNewRole('')
+      setNewSectorId('')
       toast({
         title: 'Sucesso',
-        description: data.message || 'Cargo atualizado com sucesso!',
+        description: data.message || 'Cargo e setor atualizados com sucesso!',
       })
     } catch (err) {
-      console.error('Erro ao atualizar cargo:', err)
+      console.error('Erro ao atualizar cargo e setor:', err)
       const error = err as ApiErrorResponse
       toast({
         title: 'Erro',
         description: error.fieldsMessage
           ? error.fieldsMessage.join(', ')
-          : error.message || 'Erro ao atualizar cargo.',
+          : error.message || 'Erro ao atualizar cargo e setor.',
         variant: 'destructive',
       })
     } finally {
@@ -561,10 +563,11 @@ export function Presidency() {
                           onClick={() => {
                             setUserToUpdate(user)
                             setNewRole(user.role)
-                            setIsRoleDialogOpen(true)
+                            setNewSectorId(user.sector.sectorId)
+                            setIsUpdateDialogOpen(true)
                           }}
                         >
-                          <span className="hidden sm:inline">Cargo</span>
+                          <span className="hidden sm:inline">Editar</span>
                         </Button>
                         <Button
                           className="flex items-center justify-center gap-2 rounded-2xl"
@@ -589,17 +592,17 @@ export function Presidency() {
 
       <PaginationControls />
 
-      <Dialog open={isRoleDialogOpen} onOpenChange={setIsRoleDialogOpen}>
+      <Dialog open={isUpdateDialogOpen} onOpenChange={setIsUpdateDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Alterar Cargo</DialogTitle>
+            <DialogTitle>Atualizar Usuário</DialogTitle>
             <DialogDescription>
-              Alterar cargo do usuário {userToUpdate?.name}
+              Alterar cargo e setor do usuário {userToUpdate?.name}
             </DialogDescription>
           </DialogHeader>
           <div className="flex flex-col gap-4">
             <div className="grid w-full items-center gap-2">
-              <Label htmlFor="role">Novo Cargo</Label>
+              <Label htmlFor="role">Cargo</Label>
               <Select
                 value={newRole}
                 onValueChange={(value: UserRole) => setNewRole(value)}
@@ -616,20 +619,39 @@ export function Presidency() {
                 </SelectContent>
               </Select>
             </div>
+            <div className="grid w-full items-center gap-2">
+              <Label htmlFor="sector">Setor</Label>
+              <Select
+                value={newSectorId}
+                onValueChange={(value: string) => setNewSectorId(value)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione um setor" />
+                </SelectTrigger>
+                <SelectContent>
+                  {sectors.map(sector => (
+                    <SelectItem key={sector.sectorId} value={sector.sectorId}>
+                      {sector.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
             <DialogFooter className="flex gap-2 mt-4">
               <Button
                 variant="outline"
                 onClick={() => {
-                  setIsRoleDialogOpen(false)
+                  setIsUpdateDialogOpen(false)
                   setUserToUpdate(null)
                   setNewRole('')
+                  setNewSectorId('')
                 }}
               >
                 Cancelar
               </Button>
               <Button
-                onClick={handleUpdateUserRole}
-                disabled={isUpdatingRole || !newRole}
+                onClick={handleUpdateUserRoleAndSector}
+                disabled={isUpdatingRole || !newRole || !newSectorId}
               >
                 {isUpdatingRole ? (
                   <>
@@ -637,7 +659,7 @@ export function Presidency() {
                     Atualizando...
                   </>
                 ) : (
-                  'Confirmar alteração'
+                  'Confirmar alterações'
                 )}
               </Button>
             </DialogFooter>
