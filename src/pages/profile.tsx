@@ -25,7 +25,7 @@ import {
   Trash2,
   Loader2,
 } from 'lucide-react'
-import { parseCookies } from 'nookies'
+import { parseCookies, setCookie } from 'nookies' // Importando setCookie
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { toast } from '@/hooks/use-toast'
@@ -75,17 +75,25 @@ export function Profile() {
       })
 
       if (response.ok) {
+        // Atualizar o user no estado e no cookie
+        if (user) {
+          const updatedUser = {
+            ...user,
+            imageUrl: '', // ou um valor padrão para imagem
+          }
+          setUser(updatedUser)
+
+          // Atualizar o cookie com os dados atualizados
+          setCookie(null, 'oneflow.user', JSON.stringify(updatedUser), {
+            maxAge: 30 * 24 * 60 * 60,
+            path: '/',
+          })
+        }
+
         toast({
           title: 'Imagem removida',
           description: 'Sua foto de perfil foi removida com sucesso.',
         })
-        // Atualizar o user no estado com a imagem removida
-        if (user) {
-          setUser({
-            ...user,
-            imageUrl: '', // ou um valor padrão para imagem
-          })
-        }
       } else {
         const error = await response.json()
         toast({
@@ -117,7 +125,7 @@ export function Profile() {
         <h1 className="text-3xl font-bold">Meu perfil</h1>
         <div className="relative">
           <img
-            src={user?.imageUrl}
+            src={user?.imageUrl || '/default-avatar.png'} // Adicione uma imagem padrão caso necessário
             alt=""
             className="size-[100px] rounded-full"
           />
