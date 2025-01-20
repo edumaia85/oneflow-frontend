@@ -1,5 +1,14 @@
 import { Button } from '@/components/ui/button'
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog'
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
@@ -14,6 +23,7 @@ import {
   LockKeyhole,
   Settings,
   Trash2,
+  Loader2,
 } from 'lucide-react'
 import { parseCookies } from 'nookies'
 import { useEffect, useState } from 'react'
@@ -38,6 +48,7 @@ interface User {
 export function Profile() {
   const [user, setUser] = useState<User | null>(null)
   const [isRemoving, setIsRemoving] = useState(false)
+  const [dialogOpen, setDialogOpen] = useState(false)
 
   const { 'oneflow.user': userCookie, 'oneflow.token': token } = parseCookies()
   const navigate = useNavigate()
@@ -94,6 +105,7 @@ export function Profile() {
       })
     } finally {
       setIsRemoving(false)
+      setDialogOpen(false)
     }
   }
 
@@ -109,15 +121,50 @@ export function Profile() {
             alt=""
             className="size-[100px] rounded-full"
           />
-          <Button
-            variant="destructive"
-            size="icon"
-            className="absolute -right-2 -bottom-2 size-8 rounded-full"
-            onClick={removeProfileImage}
-            disabled={isRemoving || !user?.imageUrl}
-          >
-            <Trash2 className="size-4" />
-          </Button>
+          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+            <DialogTrigger asChild>
+              <Button
+                variant="destructive"
+                size="icon"
+                className="absolute -right-2 -bottom-2 size-8 rounded-full"
+                disabled={!user?.imageUrl}
+              >
+                <Trash2 className="size-4" />
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Remover foto de perfil</DialogTitle>
+                <DialogDescription>
+                  Tem certeza que deseja remover sua foto de perfil? Esta ação
+                  não pode ser desfeita.
+                </DialogDescription>
+              </DialogHeader>
+              <DialogFooter>
+                <Button
+                  variant="outline"
+                  onClick={() => setDialogOpen(false)}
+                  disabled={isRemoving}
+                >
+                  Cancelar
+                </Button>
+                <Button
+                  variant="destructive"
+                  onClick={removeProfileImage}
+                  disabled={isRemoving}
+                >
+                  {isRemoving ? (
+                    <>
+                      <Loader2 className="size-4 mr-2 animate-spin" />
+                      Removendo...
+                    </>
+                  ) : (
+                    'Remover'
+                  )}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </div>
         <p className="text-xl font-medium">{user?.name}</p>
         <p className="text-xl font-medium">Email: {user?.email}</p>
