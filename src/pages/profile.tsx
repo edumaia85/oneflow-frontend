@@ -56,7 +56,7 @@ export function Profile() {
   const removeProfileImage = async () => {
     setIsRemoving(true)
     try {
-      const response = await fetch(`${baseURL}/users/image`, {
+      const response = await fetch(`${baseURL}/users/remove-image`, {
         method: 'PATCH',
         headers: {
           Authorization: `Bearer ${token}`,
