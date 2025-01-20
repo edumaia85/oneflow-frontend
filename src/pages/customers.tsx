@@ -319,9 +319,20 @@ export function Customers() {
           Authorization: `Bearer ${token}`,
         },
       })
-
-      const data = await response.json()
-
+  
+      if (!response.ok) {
+        // Se a resposta não for ok, tentamos ler o JSON de erro
+        const errorData = await response.json()
+        throw errorData
+      }
+  
+      // Verifica se há conteúdo antes de tentar fazer o parse do JSON
+      let data
+      const contentType = response.headers.get("content-type")
+      if (contentType && contentType.includes("application/json") && response.status !== 204) {
+        data = await response.json()
+      }
+  
       setCustomers(
         customers.filter(customer => customer.customerId !== customerId)
       )
@@ -329,7 +340,7 @@ export function Customers() {
       setCustomerToDelete(null)
       toast({
         title: 'Sucesso!',
-        description: data.message || 'Cliente removido com sucesso.',
+        description: data?.message || 'Cliente removido com sucesso.',
       })
     } catch (err) {
       console.error('Erro ao deletar cliente:', err)
