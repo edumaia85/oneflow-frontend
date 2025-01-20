@@ -41,7 +41,7 @@ const router = createHashRouter(
           <Route path="perfil" element={<Profile />} />
           <Route path="clientes" element={<Customers />} />
           <Route path="usuario/atualizar-dados" element={<UpdateProfile />} />
-          <Route path="usuario/redefinir senha" element={<UpdatePassword />} />
+          <Route path="usuario/redefinir-senha" element={<UpdatePassword />} />
           <Route path="documentos/:sectorId" element={<Documents />} />
           <Route
             path="perfil/atualizar-imagem"
