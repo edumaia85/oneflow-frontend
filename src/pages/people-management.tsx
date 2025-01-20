@@ -49,12 +49,6 @@ import { useToast } from '@/hooks/use-toast'
 import { useNavigate } from 'react-router-dom'
 import { Checkbox } from '@/components/ui/checkbox'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import { Calendar } from '@/components/ui/calendar'
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover'
 
 enum ProjectStatus {
   FINALIZADO = 'FINALIZADO',
@@ -534,48 +528,22 @@ export function PeopleManagement() {
                 </div>
                 <div className="grid w-full items-center gap-2">
                   <Label htmlFor="deadline">Prazo final</Label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className={`w-full justify-start text-left font-normal ${!newProject.deadline && 'text-muted-foreground'}`}
-                      >
-                        {newProject.deadline ? (
-                          new Date(newProject.deadline).toLocaleDateString(
-                            'pt-BR'
-                          )
-                        ) : (
-                          <span>Selecione uma data</span>
-                        )}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={
-                          newProject.deadline
-                            ? new Date(newProject.deadline)
-                            : undefined
-                        }
-                        onSelect={date => {
-                          if (date) {
-                            const timezoneOffset =
-                              date.getTimezoneOffset() * 60000
-                            const adjustedDate = new Date(
-                              date.getTime() + timezoneOffset
-                            )
-                            setNewProject({
-                              ...newProject,
-                              deadline: adjustedDate
-                                .toISOString()
-                                .split('T')[0],
-                            })
-                          }
-                        }}
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
+                  <input
+                    id="deadline"
+                    type="date"
+                    value={newProject.deadline}
+                    onChange={e => {
+                      const date = new Date(e.target.value)
+                      const timezoneOffset = date.getTimezoneOffset() * 60000
+                      const adjustedDate = new Date(
+                        date.getTime() + timezoneOffset
+                      )
+                      setNewProject({
+                        ...newProject,
+                        deadline: adjustedDate.toISOString().split('T')[0],
+                      })
+                    }}
+                  />
                 </div>
                 <div className="grid w-full items-center gap-2">
                   <Label htmlFor="status">Status</Label>
@@ -803,38 +771,26 @@ export function PeopleManagement() {
               </div>
               <div className="grid w-full items-center gap-2">
                 <Label htmlFor="edit-deadline">Prazo final</Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className="w-full justify-start text-left font-normal"
-                    >
-                      {new Date(projectToUpdate.deadline).toLocaleDateString(
-                        'pt-BR'
-                      )}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={new Date(projectToUpdate.deadline)}
-                      onSelect={date => {
-                        if (date) {
-                          const timezoneOffset =
-                            date.getTimezoneOffset() * 60000
-                          const adjustedDate = new Date(
-                            date.getTime() + timezoneOffset
-                          )
-                          setProjectToUpdate({
-                            ...projectToUpdate,
-                            deadline: adjustedDate,
-                          })
-                        }
-                      }}
-                      initialFocus
-                    />
-                  </PopoverContent>
-                </Popover>
+                <Input
+                  id="edit-deadline"
+                  type="date"
+                  value={
+                    new Date(projectToUpdate.deadline)
+                      .toISOString()
+                      .split('T')[0]
+                  }
+                  onChange={e => {
+                    const date = new Date(e.target.value)
+                    const timezoneOffset = date.getTimezoneOffset() * 60000
+                    const adjustedDate = new Date(
+                      date.getTime() + timezoneOffset
+                    )
+                    setProjectToUpdate({
+                      ...projectToUpdate,
+                      deadline: adjustedDate,
+                    })
+                  }}
+                />
               </div>
               <div className="grid w-full items-center gap-2">
                 <Label htmlFor="edit-status">Status</Label>
