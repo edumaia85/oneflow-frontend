@@ -935,12 +935,13 @@ export function Financial() {
                 projectToDelete &&
                 handleDeleteProject(projectToDelete.projectId)
               }
+              disabled={isSubmitting}
             >
               {isSubmitting ? (
-                <>
-                  <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
+                <div className="flex items-center gap-2">
+                  <Loader2Icon className="h-4 w-4 animate-spin" />
                   Excluindo...
-                </>
+                </div>
               ) : (
                 'Confirmar exclusão'
               )}
