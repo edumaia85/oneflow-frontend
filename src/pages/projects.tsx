@@ -431,30 +431,28 @@ export function Projects() {
           Authorization: `Bearer ${token}`,
         },
       })
-
+  
       if (!response.ok) {
-        const errorData = await response.json()
-        throw errorData
+        try {
+          const errorData = await response.json()
+          throw errorData
+        } catch {
+          throw new Error(response.statusText)
+        }
       }
-
-      let data
-      const contentType = response.headers.get("content-type")
-      if (contentType && contentType.includes("application/json") && response.status !== 204) {
-        data = await response.json()
-      }
-
-
-      if (!response.ok) {
-        throw data
-      }
-
-      setProjects(projects.filter(project => project.projectId !== projectId))
+  
+      const contentType = response.headers.get('content-type')
+      const data = contentType?.includes('application/json') ? await response.json() : null
+  
+      setProjects(prevProjects => prevProjects.filter(project => project.projectId !== projectId))
       setIsDeleteDialogOpen(false)
       setProjectToDelete(null)
+      
       toast({
         title: 'Sucesso',
-        description: data.message || 'Projeto deletado com sucesso!',
+        description: data?.message || 'Projeto deletado com sucesso!',
       })
+  
     } catch (err) {
       console.error('Erro ao deletar projeto:', err)
       const error = err as ApiErrorResponse
