@@ -119,9 +119,12 @@ export function Meetings() {
 
   const formatDate = useCallback((dateString: string): string => {
     const date = new Date(dateString)
-    const day = date.getDate().toString().padStart(2, '0')
-    const month = (date.getMonth() + 1).toString().padStart(2, '0')
-    const year = date.getFullYear()
+    const timezoneOffset = date.getTimezoneOffset() * 60000
+    const adjustedDate = new Date(date.getTime() + timezoneOffset)
+
+    const day = adjustedDate.getDate().toString().padStart(2, '0')
+    const month = (adjustedDate.getMonth() + 1).toString().padStart(2, '0')
+    const year = adjustedDate.getFullYear()
     return `${day}/${month}/${year}`
   }, [])
 
@@ -427,9 +430,14 @@ export function Meetings() {
                         onSelect={newDate => {
                           setDate(newDate)
                           if (newDate) {
+                            const timezoneOffset =
+                              newDate.getTimezoneOffset() * 60000
+                            const adjustedDate = new Date(
+                              newDate.getTime() + timezoneOffset
+                            )
                             handleInputChange(
                               'meetingDate',
-                              newDate.toISOString().split('T')[0]
+                              adjustedDate.toISOString().split('T')[0]
                             )
                           }
                         }}
@@ -515,13 +523,20 @@ export function Meetings() {
                       className="flex items-center justify-center gap-2 rounded-2xl"
                       onClick={() => {
                         setEditingMeeting(meeting)
+                        const meetingDate = new Date(meeting.meetingDate)
+                        const timezoneOffset =
+                          meetingDate.getTimezoneOffset() * 60000
+                        const adjustedDate = new Date(
+                          meetingDate.getTime() + timezoneOffset
+                        )
+
                         setFormData({
                           title: meeting.title,
                           description: meeting.description,
-                          meetingDate: meeting.meetingDate,
+                          meetingDate: adjustedDate.toISOString().split('T')[0],
                           meetingStatus: meeting.meetingStatus,
                         })
-                        setDate(new Date(meeting.meetingDate))
+                        setDate(adjustedDate)
                         setIsDialogOpen(true)
                       }}
                       variant="outline"

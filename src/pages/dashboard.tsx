@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Loader2 } from 'lucide-react'
 import { parseCookies } from 'nookies'
+import { baseURL } from '@/utils/constants'
 
 interface DashboardData {
   userQuantity: number
@@ -16,7 +17,7 @@ export function Dashboard() {
   useEffect(() => {
     async function fetchDashboardData() {
       try {
-        const response = await fetch('https://oneflow-api.onrender.com/dashboard', {
+        const response = await fetch(`${baseURL}/dashboard`, {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${token}`,

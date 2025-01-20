@@ -538,9 +538,17 @@ export function Projects() {
                     id="deadline"
                     type="date"
                     value={newProject.deadline}
-                    onChange={e =>
-                      setNewProject({ ...newProject, deadline: e.target.value })
-                    }
+                    onChange={e => {
+                      const date = new Date(e.target.value)
+                      const timezoneOffset = date.getTimezoneOffset() * 60000
+                      const adjustedDate = new Date(
+                        date.getTime() + timezoneOffset
+                      )
+                      setNewProject({
+                        ...newProject,
+                        deadline: adjustedDate.toISOString().split('T')[0],
+                      })
+                    }}
                   />
                 </div>
                 <div className="grid w-full items-center gap-2">
@@ -777,12 +785,17 @@ export function Projects() {
                       .toISOString()
                       .split('T')[0]
                   }
-                  onChange={e =>
+                  onChange={e => {
+                    const date = new Date(e.target.value)
+                    const timezoneOffset = date.getTimezoneOffset() * 60000
+                    const adjustedDate = new Date(
+                      date.getTime() + timezoneOffset
+                    )
                     setProjectToUpdate({
                       ...projectToUpdate,
-                      deadline: new Date(e.target.value),
+                      deadline: adjustedDate,
                     })
-                  }
+                  }}
                 />
               </div>
               <div className="grid w-full items-center gap-2">
