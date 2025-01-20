@@ -65,8 +65,12 @@ export function Documents() {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
-  const [documentToEdit, setDocumentToEdit] = useState<DocumentLink | null>(null)
-  const [documentToDelete, setDocumentToDelete] = useState<DocumentLink | null>(null)
+  const [documentToEdit, setDocumentToEdit] = useState<DocumentLink | null>(
+    null
+  )
+  const [documentToDelete, setDocumentToDelete] = useState<DocumentLink | null>(
+    null
+  )
   const [formData, setFormData] = useState<DocumentFormData>(initialFormData)
   const [currentPage, setCurrentPage] = useState(0)
   const [totalPages, setTotalPages] = useState(0)
@@ -182,6 +186,17 @@ export function Documents() {
   const handleCreateDocument = async () => {
     try {
       setIsSubmitting(true)
+      // Check if both name and documentUrl fields are filled
+      if (!formData.name.trim() || !formData.documentUrl.trim()) {
+        toast({
+          title: 'Preenchimento obrigatório!',
+          description: 'Por favor, preencha o nome e a URL do documento.',
+          variant: 'destructive',
+        })
+        setIsSubmitting(false)
+        return
+      }
+
       await fetch(`${baseURL}/documents`, {
         method: 'POST',
         headers: {
@@ -449,64 +464,65 @@ export function Documents() {
                 </Button>
                 <Button
                   onClick={() =>
-                    handleUpdateDocument(documentToEdit.documentLinkId)}
-                    disabled={isSubmitting}
-                  >
-                    {isSubmitting ? (
-                      <>
-                        <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
-                        Salvando...
-                      </>
-                    ) : (
-                      'Salvar alterações'
-                    )}
-                  </Button>
-                </DialogFooter>
-              </div>
-            )}
-          </DialogContent>
-        </Dialog>
-  
-        <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Confirmar exclusão</DialogTitle>
-              <DialogDescription>
-                Tem certeza que deseja excluir o documento{' '}
-                {documentToDelete?.name}? Esta ação não pode ser desfeita.
-              </DialogDescription>
-            </DialogHeader>
-            <DialogFooter className="flex gap-2">
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setIsDeleteDialogOpen(false)
-                  setDocumentToDelete(null)
-                }}
-                disabled={isSubmitting}
-              >
-                Cancelar
-              </Button>
-              <Button
-                variant="destructive"
-                onClick={() =>
-                  documentToDelete &&
-                  handleDeleteDocument(documentToDelete.documentLinkId)
-                }
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? (
-                  <>
-                    <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
-                    Excluindo...
-                  </>
-                ) : (
-                  'Confirmar exclusão'
-                )}
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      </div>
-    )
-  }
+                    handleUpdateDocument(documentToEdit.documentLinkId)
+                  }
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? (
+                    <>
+                      <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
+                      Salvando...
+                    </>
+                  ) : (
+                    'Salvar alterações'
+                  )}
+                </Button>
+              </DialogFooter>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Confirmar exclusão</DialogTitle>
+            <DialogDescription>
+              Tem certeza que deseja excluir o documento{' '}
+              {documentToDelete?.name}? Esta ação não pode ser desfeita.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex gap-2">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setIsDeleteDialogOpen(false)
+                setDocumentToDelete(null)
+              }}
+              disabled={isSubmitting}
+            >
+              Cancelar
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() =>
+                documentToDelete &&
+                handleDeleteDocument(documentToDelete.documentLinkId)
+              }
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
+                  Excluindo...
+                </>
+              ) : (
+                'Confirmar exclusão'
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  )
+}
