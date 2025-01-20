@@ -320,6 +320,7 @@ export function Presidency() {
 
   const handleDeleteUser = async (userId: number) => {
     try {
+      setIsSubmitting(true) // Adicionar controle de estado de submissão
       const response = await fetch(`${baseURL}/users/${userId}`, {
         method: 'DELETE',
         headers: {
@@ -328,31 +329,37 @@ export function Presidency() {
       })
 
       if (!response.ok) {
-        const errorData = await response.json()
-        throw errorData
+        let errorMessage = 'Erro ao deletar usuário.'
+        try {
+          const errorData = await response.json()
+          errorMessage =
+            errorData.message ||
+            errorData.fieldsMessage?.join(', ') ||
+            errorMessage
+        } catch {
+          // Se não conseguir ler o JSON de erro, usa a mensagem padrão
+        }
+        throw new Error(errorMessage)
       }
 
-      let data
-      const contentType = response.headers.get("content-type")
-      if (contentType && contentType.includes("application/json") && response.status !== 204) {
-        data = await response.json()
-      }
-
+      // Se chegou aqui, a deleção foi bem-sucedida
       setUsers(users.filter(user => user.userId !== userId))
       setIsDeleteDialogOpen(false)
       setUserToDelete(null)
       toast({
-        title: 'Sucesso',
-        description: data.message || 'Usuário deletado com sucesso!',
+        title: 'Sucesso!',
+        description: 'Usuário deletado com sucesso.',
       })
     } catch (err) {
       console.error('Erro ao deletar usuário:', err)
       toast({
         title: 'Erro',
         description:
-          'Erro no sistema ou você não tem permissão para executar essa ação.',
+          err instanceof Error ? err.message : 'Erro ao deletar usuário.',
         variant: 'destructive',
       })
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -662,8 +669,16 @@ export function Presidency() {
               onClick={() =>
                 userToDelete && handleDeleteUser(userToDelete.userId)
               }
+              disabled={isSubmitting}
             >
-              Confirmar exclusão
+              {isSubmitting ? (
+                <>
+                  <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
+                  Excluindo...
+                </>
+              ) : (
+                'Confirmar exclusão'
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>
