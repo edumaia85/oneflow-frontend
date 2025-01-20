@@ -289,6 +289,7 @@ export function Meetings() {
   const handleDelete = useCallback(
     async (id: string) => {
       try {
+        setIsSubmitting(true)
         const response = await fetch(`${baseURL}/meetings/${id}`, {
           method: 'DELETE',
           headers: {
@@ -328,6 +329,8 @@ export function Meetings() {
             : error.message || 'Erro ao deletar reunião.',
           variant: 'destructive',
         })
+      } finally {
+        setIsSubmitting(false)
       }
     },
     [token, fetchMeetings, toast]

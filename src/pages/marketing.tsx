@@ -419,6 +419,7 @@ export function Marketing() {
 
   const handleDeleteProject = async (projectId: number) => {
     try {
+      setIsSubmitting(true)
       const response = await fetch(`${baseURL}/projects/${projectId}`, {
         method: 'DELETE',
         headers: {
@@ -460,6 +461,8 @@ export function Marketing() {
           : error.message || 'Erro ao deletar projeto.',
         variant: 'destructive',
       })
+    } finally {
+      setIsSubmitting(false)
     }
   }
 

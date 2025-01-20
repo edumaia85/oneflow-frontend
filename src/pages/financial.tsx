@@ -421,6 +421,7 @@ export function Financial() {
 
   const handleDeleteProject = async (projectId: number) => {
     try {
+      setIsSubmitting(true)
       const response = await fetch(`${baseURL}/projects/${projectId}`, {
         method: 'DELETE',
         headers: {
@@ -462,6 +463,8 @@ export function Financial() {
           : error.message || 'Erro ao deletar projeto.',
         variant: 'destructive',
       })
+    } finally {
+      setIsSubmitting(false)
     }
   }
 

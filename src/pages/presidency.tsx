@@ -322,7 +322,7 @@ export function Presidency() {
 
   const handleDeleteUser = async (userId: number) => {
     try {
-      setIsSubmitting(true) // Adicionar controle de estado de submissão
+      setIsSubmitting(true)
       const response = await fetch(`${baseURL}/users/${userId}`, {
         method: 'DELETE',
         headers: {
@@ -338,13 +338,10 @@ export function Presidency() {
             errorData.message ||
             errorData.fieldsMessage?.join(', ') ||
             errorMessage
-        } catch {
-          // Se não conseguir ler o JSON de erro, usa a mensagem padrão
-        }
+        } catch {}
         throw new Error(errorMessage)
       }
 
-      // Se chegou aqui, a deleção foi bem-sucedida
       setUsers(users.filter(user => user.userId !== userId))
       setIsDeleteDialogOpen(false)
       setUserToDelete(null)
