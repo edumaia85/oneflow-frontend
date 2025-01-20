@@ -286,52 +286,48 @@ export function Meetings() {
     }
   }, [editingMeeting, formData, token, fetchMeetings, resetForm, toast])
 
-  const handleDelete = useCallback(
-    async (id: string) => {
-      try {
-        const response = await fetch(`${baseURL}/meetings/${id}`, {
-          method: 'DELETE',
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
-
-        if (!response.ok) {
+  const handleDelete = useCallback(async (id: string) => {
+    try {
+      const response = await fetch(`${baseURL}/meetings/${id}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+  
+      if (!response.ok) {
+        try {
           const errorData = await response.json()
           throw errorData
+        } catch {
+          throw new Error(response.statusText)
         }
-
-        let data
-        const contentType = response.headers.get('content-type')
-        if (
-          contentType &&
-          contentType.includes('application/json') &&
-          response.status !== 204
-        ) {
-          data = await response.json()
-        }
-
-        await fetchMeetings()
-        setIsDeleteDialogOpen(false)
-        setMeetingToDelete(null)
-        toast({
-          title: 'Sucesso!',
-          description: data.message || 'Reunião deletada com sucesso.',
-        })
-      } catch (err) {
-        console.error('Erro ao deletar reunião:', err)
-        const error = err as ApiErrorResponse
-        toast({
-          title: 'Erro',
-          description: error.fieldsMessage
-            ? error.fieldsMessage.join(', ')
-            : error.message || 'Erro ao deletar novo reunião.',
-          variant: 'destructive',
-        })
       }
-    },
-    [token, fetchMeetings]
-  )
+  
+      const contentType = response.headers.get('content-type')
+      const data = contentType?.includes('application/json') ? await response.json() : null
+  
+      await fetchMeetings()
+      setIsDeleteDialogOpen(false)
+      setMeetingToDelete(null)
+      
+      toast({
+        title: 'Sucesso!',
+        description: data?.message || 'Reunião deletada com sucesso.',
+      })
+  
+    } catch (err) {
+      console.error('Erro ao deletar reunião:', err)
+      const error = err as ApiErrorResponse
+      toast({
+        title: 'Erro',
+        description: error.fieldsMessage
+          ? error.fieldsMessage.join(', ')
+          : error.message || 'Erro ao deletar reunião.',
+        variant: 'destructive',
+      })
+    }
+  }, [token, fetchMeetings, toast])
 
   const handleInputChange = useCallback((field: string, value: string) => {
     setFormData(prev => ({
