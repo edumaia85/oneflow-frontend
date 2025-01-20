@@ -342,12 +342,10 @@ export function Presidency() {
       })
     } catch (err) {
       console.error('Erro ao deletar usuário:', err)
-      const error = err as ApiErrorResponse
       toast({
         title: 'Erro',
-        description: error.fieldsMessage
-          ? error.fieldsMessage.join(', ')
-          : error.message || 'Erro ao deletar usuário.',
+        description:
+          'Erro no sistema ou você não tem permissão para executar essa ação.',
         variant: 'destructive',
       })
     }

@@ -103,6 +103,12 @@ interface CustomersResponse {
   totalPages: number
 }
 
+interface ApiErrorResponse {
+  status: number
+  message: string
+  fieldsMessage?: string[]
+}
+
 export function Financial() {
   const [projects, setProjects] = useState<Project[]>([])
   const [users, setUsers] = useState<User[]>([])
@@ -317,8 +323,10 @@ export function Financial() {
         body: JSON.stringify(projectData),
       })
 
+      const data = await response.json()
+
       if (!response.ok) {
-        throw new Error('Falha ao criar projeto')
+        throw data
       }
 
       await fetchProjects()
@@ -334,15 +342,17 @@ export function Financial() {
       })
       setSelectedUsers([])
       toast({
-        title: 'Projeto adicionado com sucesso!',
-        description: 'O projeto foi criado com sucesso.',
+        title: 'Sucesso!',
+        description: data.message || 'Pprojeto criado com sucesso.',
       })
     } catch (err) {
       console.error('Erro ao criar projeto:', err)
+      const error = err as ApiErrorResponse
       toast({
-        title: 'Erro ao adicionar projeto!',
-        description:
-          'Houve um erro ao tentar criar o projeto. Tente novamente mais tarde.',
+        title: 'Erro',
+        description: error.fieldsMessage
+          ? error.fieldsMessage.join(', ')
+          : error.message || 'Erro ao adicionar novo projeto.',
         variant: 'destructive',
       })
     }
@@ -382,8 +392,10 @@ export function Financial() {
         }
       )
 
+      const data = await response.json()
+
       if (!response.ok) {
-        throw new Error('Falha ao atualizar projeto')
+        throw data
       }
 
       await fetchProjects()
@@ -391,15 +403,17 @@ export function Financial() {
       setProjectToUpdate(null)
       setSelectedUsers([])
       toast({
-        title: 'Projeto atualizado com sucesso!',
-        description: 'As alterações foram salvas com sucesso.',
+        title: 'Sucesso!',
+        description: data.message || 'As alterações foram salvas com sucesso.',
       })
-    } catch (error) {
-      console.error('Erro ao atualizar projeto:', error)
+    } catch (err) {
+      console.error('Erro ao atualizar projeto:', err)
+      const error = err as ApiErrorResponse
       toast({
-        title: 'Erro ao atualizar projeto!',
-        description:
-          'Houve um erro ao tentar atualizar o projeto. Tente novamente mais tarde.',
+        title: 'Erro',
+        description: error.fieldsMessage
+          ? error.fieldsMessage.join(', ')
+          : error.message || 'Erro ao atualizar projeto.',
         variant: 'destructive',
       })
     }
@@ -414,22 +428,27 @@ export function Financial() {
         },
       })
 
+      const data = await response.json()
+
       if (!response.ok) {
-        throw new Error('Falha ao deletar projeto')
+        throw data
       }
 
       setProjects(projects.filter(project => project.projectId !== projectId))
       setIsDeleteDialogOpen(false)
       setProjectToDelete(null)
       toast({
-        title: 'Projeto deletado com sucesso!',
-        description: 'O projeto foi removido com sucesso.',
+        title: 'Sucesso!',
+        description: data.message || 'Projeto deletado com sucesso.',
       })
     } catch (err) {
       console.error('Erro ao deletar projeto:', err)
+      const error = err as ApiErrorResponse
       toast({
-        title: 'Erro ao deletar projeto!',
-        description: 'Houve um erro ao remover o projeto.',
+        title: 'Erro',
+        description: error.fieldsMessage
+          ? error.fieldsMessage.join(', ')
+          : error.message || 'Erro deletar projeto.',
         variant: 'destructive',
       })
     }

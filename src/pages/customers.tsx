@@ -74,6 +74,12 @@ interface CustomersResponse {
   totalPages: number
 }
 
+interface ApiErrorResponse {
+  status: number
+  message: string
+  fieldsMessage?: string[]
+}
+
 export function Customers() {
   const [customers, setCustomers] = useState<Customer[]>([])
   const [isLoading, setIsLoading] = useState<boolean>(false)
@@ -218,8 +224,10 @@ export function Customers() {
         body: JSON.stringify(newCustomer),
       })
 
+      const data = await response.json()
+
       if (!response.ok) {
-        throw new Error('Falha ao criar cliente')
+        throw data
       }
 
       await fetchCustomers()
@@ -239,15 +247,17 @@ export function Customers() {
         },
       })
       toast({
-        title: 'Cliente adicionado com sucesso!',
-        description: 'O cliente foi adicionado ao sistema com sucesso.',
+        title: 'Sucesso',
+        description: data.message || 'Cliente adicionado com sucesso!',
       })
     } catch (err) {
-      console.error('Erro ao criar cliente:', err)
+      console.error('Erro ao adicionar cliente:', err)
+      const error = err as ApiErrorResponse
       toast({
-        title: 'Erro ao adicionar cliente!',
-        description:
-          'Houve um erro ao adicionar cliente. Tente novamente mais tarde.',
+        title: 'Erro',
+        description: error.fieldsMessage
+          ? error.fieldsMessage.join(', ')
+          : error.message || 'Erro ao adicionar cliente.',
         variant: 'destructive',
       })
     } finally {
@@ -272,22 +282,27 @@ export function Customers() {
         }
       )
 
+      const data = await response.json()
+
       if (!response.ok) {
-        throw new Error('Falha ao atualizar cliente')
+        throw data
       }
 
       await fetchCustomers()
       setIsEditDialogOpen(false)
       setCustomerToEdit(null)
       toast({
-        title: 'Cliente atualizado com sucesso!',
-        description: 'As informações do cliente foram atualizadas.',
+        title: 'Sucesso!',
+        description: data.message || 'Cliente atualizado com sucesso.',
       })
     } catch (err) {
       console.error('Erro ao atualizar cliente:', err)
+      const error = err as ApiErrorResponse
       toast({
-        title: 'Erro ao atualizar cliente!',
-        description: 'Houve um erro ao atualizar o cliente. Tente novamente.',
+        title: 'Erro',
+        description: error.fieldsMessage
+          ? error.fieldsMessage.join(', ')
+          : error.message || 'Erro ao atualizar cliente.',
         variant: 'destructive',
       })
     } finally {
@@ -305,8 +320,10 @@ export function Customers() {
         },
       })
 
+      const data = await response.json()
+
       if (!response.ok) {
-        throw new Error('Falha ao deletar cliente')
+        throw data
       }
 
       setCustomers(
@@ -315,15 +332,17 @@ export function Customers() {
       setIsDeleteDialogOpen(false)
       setCustomerToDelete(null)
       toast({
-        title: 'Cliente deletado com sucesso!',
-        description: 'O cliente foi removido da base de dados com sucesso.',
+        title: 'Sucesso!',
+        description: data.message || 'Cliente removido com sucesso.',
       })
     } catch (err) {
-      console.error('Erro ao deletar usuário:', err)
+      console.error('Erro ao deletar cliente:', err)
+      const error = err as ApiErrorResponse
       toast({
-        title: 'Erro ao deletar cliente!',
-        description:
-          'Houve um erro ao tentar deletar o cliente. Tente novamente mais tarde.',
+        title: 'Erro',
+        description: error.fieldsMessage
+          ? error.fieldsMessage.join(', ')
+          : error.message || 'Erro ao deletar cliente.',
         variant: 'destructive',
       })
     } finally {

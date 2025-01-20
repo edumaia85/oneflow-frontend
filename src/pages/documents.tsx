@@ -270,9 +270,9 @@ export function Documents() {
     } catch (error) {
       console.error('Error deleting document:', error)
       toast({
-        title: 'Erro ao deletar documento!',
+        title: 'Erro!',
         description:
-          'Houve um erro ao tentar deletar o documento. Tente novamente.',
+          'Erro no sistema ou você não tem permissão para executar essa ação.',
         variant: 'destructive',
       })
     } finally {

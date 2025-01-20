@@ -348,13 +348,13 @@ export function Projects() {
         description: data.message || 'Projeto adicionado com sucesso!',
       })
     } catch (err) {
-      console.error('Erro ao criar projeto:', err)
+      console.error('Erro ao adicionar projeto:', err)
       const error = err as ApiErrorResponse
       toast({
         title: 'Erro',
         description: error.fieldsMessage
           ? error.fieldsMessage.join(', ')
-          : error.message || 'Erro ao tentar adicionar novo projeto.',
+          : error.message || 'Erro ao adicionar novo projeto.',
         variant: 'destructive',
       })
     } finally {

@@ -1,5 +1,11 @@
 import { useEffect, useState, useCallback } from 'react'
-import { CalendarIcon, Plus, PencilIcon, DeleteIcon, Loader2Icon } from 'lucide-react'
+import {
+  CalendarIcon,
+  Plus,
+  PencilIcon,
+  DeleteIcon,
+  Loader2Icon,
+} from 'lucide-react'
 import { baseURL } from '@/utils/constants'
 import {
   Dialog,
@@ -71,6 +77,12 @@ interface MeetingsResponse {
 interface Sector {
   id: string
   name: string
+}
+
+interface ApiErrorResponse {
+  status: number
+  message: string
+  fieldsMessage?: string[]
 }
 
 export function Meetings() {
@@ -223,7 +235,6 @@ export function Meetings() {
     }
   }, [token, sectorId, currentPage])
 
-
   useEffect(() => {
     fetchMeetings()
   }, [fetchMeetings])
@@ -245,25 +256,29 @@ export function Meetings() {
         body: JSON.stringify(formData),
       })
 
+      const data = await response.json()
+
       if (response.ok) {
         await fetchMeetings()
         setIsDialogOpen(false)
         resetForm()
         setEditingMeeting(null)
         toast({
-          title: 'Reunião adicionada com sucesso!',
-          description: 'A reunião foi criada/atualizada com sucesso.',
+          title: 'sucesso!',
+          description:
+            data.message || 'A reunião foi criada/atualizada com sucesso.',
         })
       } else {
-        throw new Error('Failed to save meeting')
+        throw data
       }
-    } catch (error) {
-      console.error('Error saving meeting:', error)
-      setError('Failed to save meeting')
+    } catch (err) {
+      console.error('Erro ao adicionar/atualizar reunião:', err)
+      const error = err as ApiErrorResponse
       toast({
-        title: 'Erro ao adicionar reunião!',
-        description:
-          'Houve um erro ao tentar criar/atualizar a reunião. Tente novamente mais tarde.',
+        title: 'Erro',
+        description: error.fieldsMessage
+          ? error.fieldsMessage.join(', ')
+          : error.message || 'Erro ao adicionar/atualizar reunião.',
         variant: 'destructive',
       })
     } finally {
@@ -281,16 +296,29 @@ export function Meetings() {
           },
         })
 
+        const data = await response.json()
+
         if (!response.ok) {
-          throw new Error('Failed to delete meeting')
+          throw data
         }
 
         await fetchMeetings()
         setIsDeleteDialogOpen(false)
         setMeetingToDelete(null)
-      } catch (error) {
-        console.error('Error deleting meeting:', error)
-        setError('Failed to delete meeting')
+        toast({
+          title: 'Sucesso!',
+          description: data.message || 'Reunião deletada com sucesso.'
+        })
+      } catch (err) {
+        console.error('Erro ao deletar reunião:', err)
+        const error = err as ApiErrorResponse
+        toast({
+          title: 'Erro',
+          description: error.fieldsMessage
+            ? error.fieldsMessage.join(', ')
+            : error.message || 'Erro ao deletar novo reunião.',
+          variant: 'destructive',
+        })
       }
     },
     [token, fetchMeetings]
@@ -306,7 +334,7 @@ export function Meetings() {
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p>Loading meetings...</p>
+        <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
       </div>
     )
   }
@@ -468,9 +496,7 @@ export function Meetings() {
                 <TableCell>{meeting.description}</TableCell>
                 <TableCell>{formatDate(meeting.meetingDate)}</TableCell>
                 <TableCell>{formatStatus(meeting.meetingStatus)}</TableCell>
-                <TableCell>
-                  {meeting.sector.name}
-                </TableCell>
+                <TableCell>{meeting.sector.name}</TableCell>
                 <TableCell>
                   <div className="flex items-center gap-2">
                     <Button
