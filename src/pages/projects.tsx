@@ -249,7 +249,7 @@ export function Projects() {
     } finally {
       setIsLoading(false)
     }
-  }, [token, currentPage])
+  }, [token, currentPage, toast])
 
   const fetchUsers = useCallback(async () => {
     try {
