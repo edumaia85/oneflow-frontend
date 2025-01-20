@@ -322,10 +322,6 @@ export function Customers() {
 
       const data = await response.json()
 
-      if (!response.ok) {
-        throw data
-      }
-
       setCustomers(
         customers.filter(customer => customer.customerId !== customerId)
       )

@@ -298,10 +298,6 @@ export function Meetings() {
 
         const data = await response.json()
 
-        if (!response.ok) {
-          throw data
-        }
-
         await fetchMeetings()
         setIsDeleteDialogOpen(false)
         setMeetingToDelete(null)
