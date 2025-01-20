@@ -24,6 +24,7 @@ import { Financial } from './pages/financial'
 import { Meetings } from './pages/meetings'
 import { ForgotPassword } from './pages/forgot-password'
 import { UpdateProfile } from './pages/update-profile'
+import { UpdatePassword } from './pages/update-password'
 
 const router = createHashRouter(
   createRoutesFromElements(
@@ -40,6 +41,7 @@ const router = createHashRouter(
           <Route path="perfil" element={<Profile />} />
           <Route path="clientes" element={<Customers />} />
           <Route path="usuario/atualizar-dados" element={<UpdateProfile />} />
+          <Route path="usuario/redefinir senha" element={<UpdatePassword />} />
           <Route path="documentos/:sectorId" element={<Documents />} />
           <Route
             path="perfil/atualizar-imagem"

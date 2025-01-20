@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import { Ellipsis, FileImage, Settings } from 'lucide-react'
+import { Ellipsis, FileImage, LockKeyhole, Settings } from 'lucide-react'
 import { parseCookies } from 'nookies'
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -83,6 +83,16 @@ export function Profile() {
                 >
                   <Settings className="size-4" />
                   Alterar dados
+                </Button>
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <Button
+                  variant="ghost"
+                  className="w-full flex items-center justify-start gap-1"
+                  onClick={() => {navigate('/dashboard/usuario/redefinir-senha')}}
+                >
+                  <LockKeyhole className="size-4" />
+                  Alterar senha
                 </Button>
               </DropdownMenuItem>
             </DropdownMenuGroup>
