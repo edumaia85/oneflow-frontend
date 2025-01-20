@@ -678,7 +678,7 @@ export function PeopleManagement() {
                 }).format(project.price)}
               </TableCell>
               <TableCell>
-                {project.deadline.toLocaleDateString('pt-BR')}
+                {project.deadline.toLocaleDateString('pt-BR') + 1}
               </TableCell>
               <TableCell>{formatStatus(project.projectStatus)}</TableCell>
               <TableCell>{project.customer.name}</TableCell>
