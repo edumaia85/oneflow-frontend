@@ -86,7 +86,7 @@ interface Project {
   name: string
   description: string
   price: number
-  deadline: Date
+  deadline: string
   projectStatus: ProjectStatus
   customerId: number
   customer: Customer
@@ -715,7 +715,7 @@ export function Projects() {
                   currency: 'BRL',
                 }).format(project.price)}
               </TableCell>
-              <TableCell>{formatDate(project.deadline.toDateString())}</TableCell>
+              <TableCell>{formatDate(project.deadline)}</TableCell>
               <TableCell>{formatStatus(project.projectStatus)}</TableCell>
               <TableCell>{project.customer.name}</TableCell>
               <TableCell className="text-center">
@@ -828,7 +828,7 @@ export function Projects() {
                           const adjustedDate = new Date(newDate.getTime() + timezoneOffset)
                           setProjectToUpdate({
                             ...projectToUpdate,
-                            deadline: adjustedDate,
+                            deadline: adjustedDate.toISOString().split('T')[0],
                           })
                         }
                       }}
