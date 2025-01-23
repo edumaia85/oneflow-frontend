@@ -198,7 +198,17 @@ export function Presidency() {
         }),
       })
 
-      const data = await response.json()
+      let data
+      try {
+        data = await response.text()
+        data = data ? JSON.parse(data) : null
+      } catch {
+        data = {
+          message:
+            response.statusText || 'Erro inesperado ao atualizar cargo e setor',
+          status: response.status,
+        }
+      }
 
       if (!response.ok) {
         throw data
@@ -211,7 +221,7 @@ export function Presidency() {
       setNewSectorId('')
       toast({
         title: 'Sucesso',
-        description: data.message || 'Cargo e setor atualizados com sucesso!',
+        description: data?.message || 'Cargo e setor atualizados com sucesso!',
       })
     } catch (err) {
       console.error('Erro ao atualizar cargo e setor:', err)
