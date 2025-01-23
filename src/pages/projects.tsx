@@ -510,7 +510,14 @@ export function Projects() {
                 Adicionar
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-h-[90vh] overflow-y-auto">
+            <DialogContent
+              className="fixed z-50 grid w-full max-w-lg scale-100 gap-4 border bg-background p-6 opacity-100 shadow-lg 
+              top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 
+              max-h-[90vh] 
+              rounded-lg 
+              md:w-full 
+              focus:outline-none"
+            >
               <DialogHeader>
                 <DialogTitle>Adicionar Novo Projeto</DialogTitle>
               </DialogHeader>
@@ -561,7 +568,9 @@ export function Projects() {
                         className="w-full justify-start text-left font-normal"
                       >
                         <CalendarIcon className="mr-2 h-4 w-4" />
-                        {date ? formatDate(date.toISOString()) : 'Selecione uma data'}
+                        {date
+                          ? formatDate(date.toISOString())
+                          : 'Selecione uma data'}
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0">
@@ -571,11 +580,16 @@ export function Projects() {
                         onSelect={newDate => {
                           setDate(newDate)
                           if (newDate) {
-                            const timezoneOffset = newDate.getTimezoneOffset() * 60000
-                            const adjustedDate = new Date(newDate.getTime() + timezoneOffset)
+                            const timezoneOffset =
+                              newDate.getTimezoneOffset() * 60000
+                            const adjustedDate = new Date(
+                              newDate.getTime() + timezoneOffset
+                            )
                             setNewProject({
                               ...newProject,
-                              deadline: adjustedDate.toISOString().split('T')[0],
+                              deadline: adjustedDate
+                                .toISOString()
+                                .split('T')[0],
                             })
                           }
                         }}
@@ -759,7 +773,15 @@ export function Projects() {
       <PaginationControls />
 
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="max-h-[90vh] overflow-y-auto">
+        <DialogContent
+          className="fixed z-50 grid w-full max-w-lg scale-100 gap-4 border bg-background p-6 opacity-100 
+          shadow-lg 
+          top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 
+          max-h-[90vh] 
+          rounded-lg 
+          md:w-full 
+          focus:outline-none"
+        >
           <DialogHeader>
             <DialogTitle>Editar Projeto</DialogTitle>
           </DialogHeader>
@@ -814,7 +836,9 @@ export function Projects() {
                       className="w-full justify-start text-left font-normal"
                     >
                       <CalendarIcon className="mr-2 h-4 w-4" />
-                      {date ? formatDate(date.toISOString()) : 'Selecione uma data'}
+                      {date
+                        ? formatDate(date.toISOString())
+                        : 'Selecione uma data'}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0">
@@ -824,8 +848,11 @@ export function Projects() {
                       onSelect={newDate => {
                         setDate(newDate)
                         if (newDate) {
-                          const timezoneOffset = newDate.getTimezoneOffset() * 60000
-                          const adjustedDate = new Date(newDate.getTime() + timezoneOffset)
+                          const timezoneOffset =
+                            newDate.getTimezoneOffset() * 60000
+                          const adjustedDate = new Date(
+                            newDate.getTime() + timezoneOffset
+                          )
                           setProjectToUpdate({
                             ...projectToUpdate,
                             deadline: adjustedDate.toISOString().split('T')[0],
@@ -931,42 +958,52 @@ export function Projects() {
       </Dialog>
 
       <Dialog open={isUsersDialogOpen} onOpenChange={setIsUsersDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Usuários do Projeto</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            {selectedProjectUsers.map(user => (
-              <div
-                key={user.userId}
-                className="flex items-center gap-4 p-2 border rounded-lg"
-              >
-                {user.imageUrl && (
-                  <img
-                    src={user.imageUrl}
-                    alt={user.name}
-                    className="w-10 h-10 rounded-full"
-                  />
-                )}
-                <div>
-                  <p className="font-medium">{user.name}</p>
-                  <p className="text-sm text-gray-500">
-                    {formatStatus(user.role)}
-                  </p>
+        <DialogContent className="max-h-[80vh] overflow-y-auto">
+          <div className="max-h-[70vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Usuários do Projeto</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              {selectedProjectUsers.map(user => (
+                <div
+                  key={user.userId}
+                  className="flex items-center gap-4 p-2 border rounded-lg"
+                >
+                  {user.imageUrl && (
+                    <img
+                      src={user.imageUrl}
+                      alt={user.name}
+                      className="w-10 h-10 rounded-full object-cover"
+                    />
+                  )}
+                  <div>
+                    <p className="font-medium">{user.name}</p>
+                    <p className="text-sm text-gray-500">
+                      {formatStatus(user.role)}
+                    </p>
+                  </div>
                 </div>
-              </div>
-            ))}
-            {selectedProjectUsers.length === 0 && (
-              <p className="text-center text-gray-500">
-                Nenhum usuário atribuído a este projeto
-              </p>
-            )}
+              ))}
+              {selectedProjectUsers.length === 0 && (
+                <p className="text-center text-gray-500">
+                  Nenhum usuário atribuído a este projeto
+                </p>
+              )}
+            </div>
           </div>
         </DialogContent>
       </Dialog>
 
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <DialogContent>
+        <DialogContent
+          className="fixed z-50 grid w-full max-w-lg scale-100 gap-4 border bg-background p-6 opacity-100 
+          shadow-lg 
+          top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 
+          max-h-[90vh] 
+          rounded-lg 
+          md:w-full 
+          focus:outline-none"
+        >
           <DialogHeader>
             <DialogTitle>Confirmar exclusão</DialogTitle>
             <DialogDescription>
