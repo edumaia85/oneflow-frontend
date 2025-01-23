@@ -199,15 +199,12 @@ export function Presidency() {
       })
 
       let data
+      const responseText = await response.text()
+
       try {
-        data = await response.text()
-        data = data ? JSON.parse(data) : null
+        data = responseText ? JSON.parse(responseText) : {}
       } catch {
-        data = {
-          message:
-            response.statusText || 'Erro inesperado ao atualizar cargo e setor',
-          status: response.status,
-        }
+        data = { message: responseText || 'Erro inesperado' }
       }
 
       if (!response.ok) {
