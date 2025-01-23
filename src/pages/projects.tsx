@@ -561,7 +561,9 @@ export function Projects() {
                         className="w-full justify-start text-left font-normal"
                       >
                         <CalendarIcon className="mr-2 h-4 w-4" />
-                        {date ? formatDate(date.toISOString()) : 'Selecione uma data'}
+                        {date
+                          ? formatDate(date.toISOString())
+                          : 'Selecione uma data'}
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0">
@@ -571,11 +573,16 @@ export function Projects() {
                         onSelect={newDate => {
                           setDate(newDate)
                           if (newDate) {
-                            const timezoneOffset = newDate.getTimezoneOffset() * 60000
-                            const adjustedDate = new Date(newDate.getTime() + timezoneOffset)
+                            const timezoneOffset =
+                              newDate.getTimezoneOffset() * 60000
+                            const adjustedDate = new Date(
+                              newDate.getTime() + timezoneOffset
+                            )
                             setNewProject({
                               ...newProject,
-                              deadline: adjustedDate.toISOString().split('T')[0],
+                              deadline: adjustedDate
+                                .toISOString()
+                                .split('T')[0],
                             })
                           }
                         }}
@@ -814,7 +821,9 @@ export function Projects() {
                       className="w-full justify-start text-left font-normal"
                     >
                       <CalendarIcon className="mr-2 h-4 w-4" />
-                      {date ? formatDate(date.toISOString()) : 'Selecione uma data'}
+                      {date
+                        ? formatDate(date.toISOString())
+                        : 'Selecione uma data'}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0">
@@ -824,8 +833,11 @@ export function Projects() {
                       onSelect={newDate => {
                         setDate(newDate)
                         if (newDate) {
-                          const timezoneOffset = newDate.getTimezoneOffset() * 60000
-                          const adjustedDate = new Date(newDate.getTime() + timezoneOffset)
+                          const timezoneOffset =
+                            newDate.getTimezoneOffset() * 60000
+                          const adjustedDate = new Date(
+                            newDate.getTime() + timezoneOffset
+                          )
                           setProjectToUpdate({
                             ...projectToUpdate,
                             deadline: adjustedDate.toISOString().split('T')[0],

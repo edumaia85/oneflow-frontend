@@ -7,20 +7,11 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from '@/components/ui/pagination'
 import { baseURL } from '@/utils/constants'
 import {
   CalendarIcon,
   DeleteIcon,
-  EyeIcon,
+  Eye,
   Loader2Icon,
   PencilIcon,
   PlusIcon,
@@ -43,12 +34,27 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { Calendar } from '@/components/ui/calendar'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useToast } from '@/hooks/use-toast'
 import { useNavigate } from 'react-router-dom'
 import { Checkbox } from '@/components/ui/checkbox'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination'
 
 enum ProjectStatus {
   FINALIZADO = 'FINALIZADO',
@@ -80,7 +86,7 @@ interface Project {
   name: string
   description: string
   price: number
-  deadline: Date
+  deadline: string
   projectStatus: ProjectStatus
   customerId: number
   customer: Customer
@@ -122,9 +128,10 @@ export function Marketing() {
   const [isUsersDialogOpen, setIsUsersDialogOpen] = useState(false)
   const [selectedProjectUsers, setSelectedProjectUsers] = useState<User[]>([])
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
-  const [isSubmitting, setIsSubmitting] = useState(false)
   const [currentPage, setCurrentPage] = useState(0)
   const [totalPages, setTotalPages] = useState(0)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [date, setDate] = useState<Date>()
   const [newProject, setNewProject] = useState({
     name: '',
     description: '',
@@ -137,13 +144,18 @@ export function Marketing() {
 
   const { 'oneflow.token': token } = parseCookies()
   const { toast } = useToast()
+
   const navigate = useNavigate()
 
-  const formatStatus = (status: string) => {
-    return status
-      .split('_')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-      .join(' ')
+  const formatDate = (dateString: string): string => {
+    const date = new Date(dateString)
+    const timezoneOffset = date.getTimezoneOffset() * 60000
+    const adjustedDate = new Date(date.getTime() + timezoneOffset)
+
+    const day = adjustedDate.getDate().toString().padStart(2, '0')
+    const month = (adjustedDate.getMonth() + 1).toString().padStart(2, '0')
+    const year = adjustedDate.getFullYear()
+    return `${day}/${month}/${year}`
   }
 
   const PaginationControls = () => {
@@ -218,6 +230,13 @@ export function Marketing() {
     )
   }
 
+  const formatStatus = (status: string) => {
+    return status
+      .split('_')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(' ')
+  }
+
   const fetchProjects = useCallback(async () => {
     try {
       setIsLoading(true)
@@ -240,10 +259,15 @@ export function Marketing() {
       setTotalPages(data.totalPages)
     } catch (err) {
       console.error('Erro ao buscar projetos:', err)
+      toast({
+        title: 'Erro ao carregar projetos',
+        description: 'Não foi possível carregar a lista de projetos.',
+        variant: 'destructive',
+      })
     } finally {
       setIsLoading(false)
     }
-  }, [token, currentPage])
+  }, [token, currentPage, toast])
 
   const fetchUsers = useCallback(async () => {
     try {
@@ -337,9 +361,10 @@ export function Marketing() {
         userIds: [],
       })
       setSelectedUsers([])
+      setDate(undefined)
       toast({
-        title: 'Sucesso!',
-        description: data.message || 'Projeto adicionado com sucesso.',
+        title: 'Sucesso',
+        description: data.message || 'Projeto adicionado com sucesso!',
       })
     } catch (err) {
       console.error('Erro ao adicionar projeto:', err)
@@ -358,7 +383,8 @@ export function Marketing() {
 
   const handleUpdateClick = (project: Project) => {
     setProjectToUpdate(project)
-    setSelectedUsers(project.userIds || [])
+    setSelectedUsers(project.users.map(user => user.userId))
+    setDate(new Date(project.deadline))
     setIsEditDialogOpen(true)
   }
 
@@ -401,8 +427,8 @@ export function Marketing() {
       setProjectToUpdate(null)
       setSelectedUsers([])
       toast({
-        title: 'Sucesso!',
-        description: data.message || 'Projeto atualizado com sucesso.',
+        title: 'Sucesso',
+        description: data.message || 'Projeto atualizado com sucesso!',
       })
     } catch (err) {
       console.error('Erro ao atualizar projeto:', err)
@@ -527,23 +553,42 @@ export function Marketing() {
                   />
                 </div>
                 <div className="grid w-full items-center gap-2">
-                  <Label htmlFor="deadline">Prazo final</Label>
-                  <Input
-                    id="deadline"
-                    type="date"
-                    value={newProject.deadline}
-                    onChange={e => {
-                      const date = new Date(e.target.value)
-                      const timezoneOffset = date.getTimezoneOffset() * 60000
-                      const adjustedDate = new Date(
-                        date.getTime() + timezoneOffset
-                      )
-                      setNewProject({
-                        ...newProject,
-                        deadline: adjustedDate.toISOString().split('T')[0],
-                      })
-                    }}
-                  />
+                  <Label>Prazo final</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className="w-full justify-start text-left font-normal"
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {date
+                          ? formatDate(date.toISOString())
+                          : 'Selecione uma data'}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0">
+                      <Calendar
+                        mode="single"
+                        selected={date}
+                        onSelect={newDate => {
+                          setDate(newDate)
+                          if (newDate) {
+                            const timezoneOffset =
+                              newDate.getTimezoneOffset() * 60000
+                            const adjustedDate = new Date(
+                              newDate.getTime() + timezoneOffset
+                            )
+                            setNewProject({
+                              ...newProject,
+                              deadline: adjustedDate
+                                .toISOString()
+                                .split('T')[0],
+                            })
+                          }
+                        }}
+                      />
+                    </PopoverContent>
+                  </Popover>
                 </div>
                 <div className="grid w-full items-center gap-2">
                   <Label htmlFor="status">Status</Label>
@@ -677,9 +722,7 @@ export function Marketing() {
                   currency: 'BRL',
                 }).format(project.price)}
               </TableCell>
-              <TableCell>
-                {new Date(project.deadline).toLocaleDateString('pt-BR')}
-              </TableCell>
+              <TableCell>{formatDate(project.deadline)}</TableCell>
               <TableCell>{formatStatus(project.projectStatus)}</TableCell>
               <TableCell>{project.customer.name}</TableCell>
               <TableCell className="text-center">
@@ -691,7 +734,7 @@ export function Marketing() {
                     setIsUsersDialogOpen(true)
                   }}
                 >
-                  <EyeIcon className="size-4" />
+                  <Eye className="size-4" />
                 </Button>
               </TableCell>
               <TableCell className="flex gap-2">
@@ -721,41 +764,6 @@ export function Marketing() {
       </Table>
 
       <PaginationControls />
-
-      <Dialog open={isUsersDialogOpen} onOpenChange={setIsUsersDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Usuários do Projeto</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            {selectedProjectUsers.map(user => (
-              <div
-                key={user.userId}
-                className="flex items-center gap-4 p-2 border rounded-lg"
-              >
-                {user.imageUrl && (
-                  <img
-                    src={user.imageUrl}
-                    alt={user.name}
-                    className="w-10 h-10 rounded-full"
-                  />
-                )}
-                <div>
-                  <p className="font-medium">{user.name}</p>
-                  <p className="text-sm text-gray-500">
-                    {formatStatus(user.role)}
-                  </p>
-                </div>
-              </div>
-            ))}
-            {selectedProjectUsers.length === 0 && (
-              <p className="text-center text-gray-500">
-                Nenhum usuário atribuído a este projeto
-              </p>
-            )}
-          </div>
-        </DialogContent>
-      </Dialog>
 
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent className="max-h-[90vh] overflow-y-auto">
@@ -805,27 +813,40 @@ export function Marketing() {
                 />
               </div>
               <div className="grid w-full items-center gap-2">
-                <Label htmlFor="edit-deadline">Prazo final</Label>
-                <Input
-                  id="edit-deadline"
-                  type="date"
-                  value={
-                    new Date(projectToUpdate.deadline)
-                      .toISOString()
-                      .split('T')[0]
-                  }
-                  onChange={e => {
-                    const date = new Date(e.target.value)
-                    const timezoneOffset = date.getTimezoneOffset() * 60000
-                    const adjustedDate = new Date(
-                      date.getTime() + timezoneOffset
-                    )
-                    setProjectToUpdate({
-                      ...projectToUpdate,
-                      deadline: adjustedDate,
-                    })
-                  }}
-                />
+                <Label>Prazo final</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start text-left font-normal"
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {date
+                        ? formatDate(date.toISOString())
+                        : 'Selecione uma data'}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0">
+                    <Calendar
+                      mode="single"
+                      selected={date}
+                      onSelect={newDate => {
+                        setDate(newDate)
+                        if (newDate) {
+                          const timezoneOffset =
+                            newDate.getTimezoneOffset() * 60000
+                          const adjustedDate = new Date(
+                            newDate.getTime() + timezoneOffset
+                          )
+                          setProjectToUpdate({
+                            ...projectToUpdate,
+                            deadline: adjustedDate.toISOString().split('T')[0],
+                          })
+                        }
+                      }}
+                    />
+                  </PopoverContent>
+                </Popover>
               </div>
               <div className="grid w-full items-center gap-2">
                 <Label htmlFor="edit-status">Status</Label>
@@ -870,6 +891,9 @@ export function Marketing() {
                       <RadioGroupItem
                         value={String(customer.customerId)}
                         id={`edit-customer-${customer.customerId}`}
+                        checked={
+                          customer.customerId === projectToUpdate.customerId
+                        }
                       />
                       <Label
                         htmlFor={`edit-customer-${customer.customerId}`}
@@ -915,6 +939,41 @@ export function Marketing() {
               </DialogFooter>
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isUsersDialogOpen} onOpenChange={setIsUsersDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Usuários do Projeto</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            {selectedProjectUsers.map(user => (
+              <div
+                key={user.userId}
+                className="flex items-center gap-4 p-2 border rounded-lg"
+              >
+                {user.imageUrl && (
+                  <img
+                    src={user.imageUrl}
+                    alt={user.name}
+                    className="w-10 h-10 rounded-full"
+                  />
+                )}
+                <div>
+                  <p className="font-medium">{user.name}</p>
+                  <p className="text-sm text-gray-500">
+                    {formatStatus(user.role)}
+                  </p>
+                </div>
+              </div>
+            ))}
+            {selectedProjectUsers.length === 0 && (
+              <p className="text-center text-gray-500">
+                Nenhum usuário atribuído a este projeto
+              </p>
+            )}
+          </div>
         </DialogContent>
       </Dialog>
 

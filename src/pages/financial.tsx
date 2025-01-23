@@ -34,6 +34,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { Calendar } from '@/components/ui/calendar'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { useToast } from '@/hooks/use-toast'
+import { useNavigate } from 'react-router-dom'
+import { Checkbox } from '@/components/ui/checkbox'
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import {
   Pagination,
   PaginationContent,
@@ -43,12 +55,6 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from '@/components/ui/pagination'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { useToast } from '@/hooks/use-toast'
-import { useNavigate } from 'react-router-dom'
-import { Checkbox } from '@/components/ui/checkbox'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 
 enum ProjectStatus {
   FINALIZADO = 'FINALIZADO',
@@ -80,7 +86,7 @@ interface Project {
   name: string
   description: string
   price: number
-  deadline: Date
+  deadline: string
   projectStatus: ProjectStatus
   customerId: number
   customer: Customer
@@ -114,6 +120,7 @@ export function Financial() {
   const [users, setUsers] = useState<User[]>([])
   const [customers, setCustomers] = useState<Customer[]>([])
   const [selectedUsers, setSelectedUsers] = useState<number[]>([])
+  const [isLoading, setIsLoading] = useState<boolean>(false)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [projectToDelete, setProjectToDelete] = useState<Project | null>(null)
@@ -121,9 +128,10 @@ export function Financial() {
   const [isUsersDialogOpen, setIsUsersDialogOpen] = useState(false)
   const [selectedProjectUsers, setSelectedProjectUsers] = useState<User[]>([])
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
-  const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
   const [currentPage, setCurrentPage] = useState(0)
   const [totalPages, setTotalPages] = useState(0)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [date, setDate] = useState<Date>()
   const [newProject, setNewProject] = useState({
     name: '',
     description: '',
@@ -136,13 +144,18 @@ export function Financial() {
 
   const { 'oneflow.token': token } = parseCookies()
   const { toast } = useToast()
+
   const navigate = useNavigate()
 
-  const formatStatus = (status: string) => {
-    return status
-      .split('_')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-      .join(' ')
+  const formatDate = (dateString: string): string => {
+    const date = new Date(dateString)
+    const timezoneOffset = date.getTimezoneOffset() * 60000
+    const adjustedDate = new Date(date.getTime() + timezoneOffset)
+
+    const day = adjustedDate.getDate().toString().padStart(2, '0')
+    const month = (adjustedDate.getMonth() + 1).toString().padStart(2, '0')
+    const year = adjustedDate.getFullYear()
+    return `${day}/${month}/${year}`
   }
 
   const PaginationControls = () => {
@@ -163,7 +176,7 @@ export function Financial() {
           <PaginationItem>
             <PaginationPrevious
               onClick={() => setCurrentPage(prev => Math.max(0, prev - 1))}
-              className={`${currentPage === 0 || isSubmitting ? 'pointer-events-none opacity-50' : 'cursor-pointer'}`}
+              className={`${currentPage === 0 || isLoading ? 'pointer-events-none opacity-50' : 'cursor-pointer'}`}
             />
           </PaginationItem>
 
@@ -209,7 +222,7 @@ export function Financial() {
               onClick={() =>
                 setCurrentPage(prev => Math.min(totalPages - 1, prev + 1))
               }
-              className={`${currentPage === totalPages - 1 || isSubmitting ? 'pointer-events-none opacity-50' : 'cursor-pointer'}`}
+              className={`${currentPage === totalPages - 1 || isLoading ? 'pointer-events-none opacity-50' : 'cursor-pointer'}`}
             />
           </PaginationItem>
         </PaginationContent>
@@ -217,9 +230,16 @@ export function Financial() {
     )
   }
 
+  const formatStatus = (status: string) => {
+    return status
+      .split('_')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(' ')
+  }
+
   const fetchProjects = useCallback(async () => {
     try {
-      setIsSubmitting(true)
+      setIsLoading(true)
       const response = await fetch(
         `${baseURL}/projects?page=${currentPage}&sectorId=2`,
         {
@@ -239,14 +259,18 @@ export function Financial() {
       setTotalPages(data.totalPages)
     } catch (err) {
       console.error('Erro ao buscar projetos:', err)
+      toast({
+        title: 'Erro ao carregar projetos',
+        description: 'Não foi possível carregar a lista de projetos.',
+        variant: 'destructive',
+      })
     } finally {
-      setIsSubmitting(false)
+      setIsLoading(false)
     }
-  }, [token, currentPage])
+  }, [token, currentPage, toast])
 
   const fetchUsers = useCallback(async () => {
     try {
-      setIsSubmitting(true)
       const response = await fetch(`${baseURL}/users?page=0`, {
         method: 'GET',
         headers: {
@@ -262,14 +286,11 @@ export function Financial() {
       setUsers(data.content)
     } catch (err) {
       console.error('Erro ao buscar usuários:', err)
-    } finally {
-      setIsSubmitting(false)
     }
   }, [token])
 
   const fetchCustomers = useCallback(async () => {
     try {
-      setIsSubmitting(true)
       const response = await fetch(`${baseURL}/customers?page=0`, {
         method: 'GET',
         headers: {
@@ -285,8 +306,6 @@ export function Financial() {
       setCustomers(data.content)
     } catch (err) {
       console.error('Erro ao buscar clientes:', err)
-    } finally {
-      setIsSubmitting(false)
     }
   }, [token])
 
@@ -309,6 +328,7 @@ export function Financial() {
 
   const handleCreateProject = async () => {
     try {
+      setIsSubmitting(true)
       const projectData = {
         ...newProject,
         userIds: selectedUsers,
@@ -341,12 +361,13 @@ export function Financial() {
         userIds: [],
       })
       setSelectedUsers([])
+      setDate(undefined)
       toast({
-        title: 'Sucesso!',
-        description: data.message || 'Pprojeto criado com sucesso.',
+        title: 'Sucesso',
+        description: data.message || 'Projeto adicionado com sucesso!',
       })
     } catch (err) {
-      console.error('Erro ao criar projeto:', err)
+      console.error('Erro ao adicionar projeto:', err)
       const error = err as ApiErrorResponse
       toast({
         title: 'Erro',
@@ -355,12 +376,15 @@ export function Financial() {
           : error.message || 'Erro ao adicionar novo projeto.',
         variant: 'destructive',
       })
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
   const handleUpdateClick = (project: Project) => {
     setProjectToUpdate(project)
     setSelectedUsers(project.users.map(user => user.userId))
+    setDate(new Date(project.deadline))
     setIsEditDialogOpen(true)
   }
 
@@ -403,8 +427,8 @@ export function Financial() {
       setProjectToUpdate(null)
       setSelectedUsers([])
       toast({
-        title: 'Sucesso!',
-        description: data.message || 'As alterações foram salvas com sucesso.',
+        title: 'Sucesso',
+        description: data.message || 'Projeto atualizado com sucesso!',
       })
     } catch (err) {
       console.error('Erro ao atualizar projeto:', err)
@@ -529,23 +553,42 @@ export function Financial() {
                   />
                 </div>
                 <div className="grid w-full items-center gap-2">
-                  <Label htmlFor="deadline">Prazo final</Label>
-                  <Input
-                    id="deadline"
-                    type="date"
-                    value={newProject.deadline}
-                    onChange={e => {
-                      const date = new Date(e.target.value)
-                      const timezoneOffset = date.getTimezoneOffset() * 60000
-                      const adjustedDate = new Date(
-                        date.getTime() + timezoneOffset
-                      )
-                      setNewProject({
-                        ...newProject,
-                        deadline: adjustedDate.toISOString().split('T')[0],
-                      })
-                    }}
-                  />
+                  <Label>Prazo final</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className="w-full justify-start text-left font-normal"
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {date
+                          ? formatDate(date.toISOString())
+                          : 'Selecione uma data'}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0">
+                      <Calendar
+                        mode="single"
+                        selected={date}
+                        onSelect={newDate => {
+                          setDate(newDate)
+                          if (newDate) {
+                            const timezoneOffset =
+                              newDate.getTimezoneOffset() * 60000
+                            const adjustedDate = new Date(
+                              newDate.getTime() + timezoneOffset
+                            )
+                            setNewProject({
+                              ...newProject,
+                              deadline: adjustedDate
+                                .toISOString()
+                                .split('T')[0],
+                            })
+                          }
+                        }}
+                      />
+                    </PopoverContent>
+                  </Popover>
                 </div>
                 <div className="grid w-full items-center gap-2">
                   <Label htmlFor="status">Status</Label>
@@ -627,7 +670,7 @@ export function Financial() {
                       Criando...
                     </>
                   ) : (
-                    'Criar projeto'
+                    'Criar Projeto'
                   )}
                 </Button>
               </div>
@@ -679,9 +722,7 @@ export function Financial() {
                   currency: 'BRL',
                 }).format(project.price)}
               </TableCell>
-              <TableCell>
-                {new Date(project.deadline).toLocaleDateString('pt-BR')}
-              </TableCell>
+              <TableCell>{formatDate(project.deadline)}</TableCell>
               <TableCell>{formatStatus(project.projectStatus)}</TableCell>
               <TableCell>{project.customer.name}</TableCell>
               <TableCell className="text-center">
@@ -772,27 +813,40 @@ export function Financial() {
                 />
               </div>
               <div className="grid w-full items-center gap-2">
-                <Label htmlFor="edit-deadline">Prazo final</Label>
-                <Input
-                  id="edit-deadline"
-                  type="date"
-                  value={
-                    new Date(projectToUpdate.deadline)
-                      .toISOString()
-                      .split('T')[0]
-                  }
-                  onChange={e => {
-                    const date = new Date(e.target.value)
-                    const timezoneOffset = date.getTimezoneOffset() * 60000
-                    const adjustedDate = new Date(
-                      date.getTime() + timezoneOffset
-                    )
-                    setProjectToUpdate({
-                      ...projectToUpdate,
-                      deadline: adjustedDate,
-                    })
-                  }}
-                />
+                <Label>Prazo final</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start text-left font-normal"
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {date
+                        ? formatDate(date.toISOString())
+                        : 'Selecione uma data'}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0">
+                    <Calendar
+                      mode="single"
+                      selected={date}
+                      onSelect={newDate => {
+                        setDate(newDate)
+                        if (newDate) {
+                          const timezoneOffset =
+                            newDate.getTimezoneOffset() * 60000
+                          const adjustedDate = new Date(
+                            newDate.getTime() + timezoneOffset
+                          )
+                          setProjectToUpdate({
+                            ...projectToUpdate,
+                            deadline: adjustedDate.toISOString().split('T')[0],
+                          })
+                        }
+                      }}
+                    />
+                  </PopoverContent>
+                </Popover>
               </div>
               <div className="grid w-full items-center gap-2">
                 <Label htmlFor="edit-status">Status</Label>
