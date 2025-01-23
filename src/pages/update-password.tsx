@@ -83,9 +83,14 @@ export function UpdatePassword() {
   }
 
   return (
-    <div className="w-full max-w-md mx-auto mt-8">
-      <h1 className="text-2xl font-bold mb-4">Atualizar senha</h1>
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+    <div className="w-full max-w-md mx-auto mt-8 px-4 sm:px-6 lg:px-8">
+      <h1 className="text-xl sm:text-2xl font-bold mb-4 text-center">
+        Atualizar senha
+      </h1>
+      <form
+        onSubmit={handleSubmit}
+        className="flex flex-col gap-4 w-full max-w-md mx-auto"
+      >
         <div>
           <label
             htmlFor="oldPassword"
@@ -98,6 +103,7 @@ export function UpdatePassword() {
             name="oldPassword"
             type="password"
             required
+            className="w-full"
             value={passwords.oldPassword}
             onChange={handleInputChange}
           />
@@ -115,6 +121,7 @@ export function UpdatePassword() {
             name="newPassword"
             type="password"
             required
+            className="w-full"
             value={passwords.newPassword}
             onChange={handleInputChange}
           />
@@ -132,6 +139,7 @@ export function UpdatePassword() {
             name="confirmPassword"
             type="password"
             required
+            className="w-full"
             value={passwords.confirmPassword}
             onChange={handleInputChange}
           />
@@ -139,6 +147,7 @@ export function UpdatePassword() {
 
         <Button
           type="submit"
+          className="w-full mt-2"
           disabled={
             isSubmitting ||
             !passwords.oldPassword ||
@@ -147,7 +156,7 @@ export function UpdatePassword() {
           }
         >
           {isSubmitting ? (
-            <div className="flex items-center gap-2">
+            <div className="flex items-center justify-center gap-2">
               <Loader2 className="h-4 w-4 animate-spin" />
               Atualizando...
             </div>
