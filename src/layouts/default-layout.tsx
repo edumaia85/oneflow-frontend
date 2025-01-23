@@ -1,14 +1,15 @@
-import { MobileSidebar } from '@/components/mobile-sidebar'
 import { Sidebar } from '@/components/sidebar'
 import { Outlet } from 'react-router-dom'
+import { useMediaQuery } from '@/hooks/use-media-query'
+import { MobileSidebar } from '@/components/mobile-sidebar'
 
 export function DefaultLayout() {
+  const isMobile = useMediaQuery('(max-width: 768px)')
+
   return (
     <main className="w-screen min-h-screen flex">
-      <Sidebar className="hidden md:flex" />
-      
-      <MobileSidebar />
-      
+      {isMobile ? <MobileSidebar /> : <Sidebar />}
+
       <div className="flex-1">
         <Outlet />
       </div>
