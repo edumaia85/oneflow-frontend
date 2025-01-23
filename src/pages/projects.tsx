@@ -499,192 +499,196 @@ export function Projects() {
   }, [fetchProjects, fetchUsers, fetchCustomers])
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-20 gap-8">
-      <div className="w-full flex items-center justify-between">
-        <div className="flex gap-4">
-          <h1 className="text-3xl font-semibold">Projetos</h1>
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger asChild>
-              <Button className="flex items-center justify-center gap-2 rounded-2xl w-[130px]">
-                <PlusIcon className="size-2" />
-                Adicionar
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-h-[90vh] overflow-y-auto">
-              <DialogHeader>
-                <DialogTitle>Adicionar Novo Projeto</DialogTitle>
-              </DialogHeader>
-              <div className="flex flex-col gap-4">
-                <div className="grid w-full items-center gap-2">
-                  <Label htmlFor="name">Nome</Label>
-                  <Input
-                    id="name"
-                    value={newProject.name}
-                    onChange={e =>
-                      setNewProject({ ...newProject, name: e.target.value })
-                    }
-                  />
-                </div>
-                <div className="grid w-full items-center gap-2">
-                  <Label htmlFor="description">Descrição</Label>
-                  <Input
-                    id="description"
-                    value={newProject.description}
-                    onChange={e =>
-                      setNewProject({
-                        ...newProject,
-                        description: e.target.value,
-                      })
-                    }
-                  />
-                </div>
-                <div className="grid w-full items-center gap-2">
-                  <Label htmlFor="price">Preço</Label>
-                  <Input
-                    id="price"
-                    type="number"
-                    value={newProject.price}
-                    onChange={e =>
-                      setNewProject({
-                        ...newProject,
-                        price: Number(e.target.value),
-                      })
-                    }
-                  />
-                </div>
-                <div className="grid w-full items-center gap-2">
-                  <Label>Prazo final</Label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className="w-full justify-start text-left font-normal"
-                      >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {date
-                          ? formatDate(date.toISOString())
-                          : 'Selecione uma data'}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0">
-                      <Calendar
-                        mode="single"
-                        selected={date}
-                        onSelect={newDate => {
-                          setDate(newDate)
-                          if (newDate) {
-                            const timezoneOffset =
-                              newDate.getTimezoneOffset() * 60000
-                            const adjustedDate = new Date(
-                              newDate.getTime() + timezoneOffset
-                            )
-                            setNewProject({
-                              ...newProject,
-                              deadline: adjustedDate
-                                .toISOString()
-                                .split('T')[0],
-                            })
-                          }
-                        }}
-                      />
-                    </PopoverContent>
-                  </Popover>
-                </div>
-                <div className="grid w-full items-center gap-2">
-                  <Label htmlFor="status">Status</Label>
-                  <Select
-                    value={newProject.projectStatus}
-                    onValueChange={(value: ProjectStatus) =>
-                      setNewProject({ ...newProject, projectStatus: value })
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione um status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {Object.values(ProjectStatus).map(status => (
-                        <SelectItem key={status} value={status}>
-                          {formatStatus(status)}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="grid w-full items-center gap-2">
-                  <Label>Selecione o cliente</Label>
-                  <RadioGroup
-                    className="border rounded-md p-4 space-y-2 max-h-40 overflow-y-auto"
-                    value={String(newProject.customerId)}
-                    onValueChange={value =>
-                      handleCustomerSelection(Number(value))
-                    }
-                  >
-                    {customers.map(customer => (
-                      <div
-                        key={customer.customerId}
-                        className="flex items-center space-x-2"
-                      >
-                        <RadioGroupItem
-                          value={String(customer.customerId)}
-                          id={`customer-${customer.customerId}`}
-                        />
-                        <Label
-                          htmlFor={`customer-${customer.customerId}`}
-                          className="cursor-pointer"
-                        >
-                          {customer.name}
-                        </Label>
-                      </div>
-                    ))}
-                  </RadioGroup>
-                </div>
-                <div className="grid w-full items-center gap-2">
-                  <Label>Selecione os usuários</Label>
-                  <div className="border rounded-md p-4 space-y-2 max-h-40 overflow-y-auto">
-                    {users.map(user => (
-                      <div
-                        key={user.userId}
-                        className="flex items-center space-x-2"
-                      >
-                        <Checkbox
-                          id={`user-${user.userId}`}
-                          checked={selectedUsers.includes(user.userId)}
-                          onCheckedChange={() =>
-                            handleUserSelection(user.userId)
-                          }
-                        />
-                        <Label
-                          htmlFor={`user-${user.userId}`}
-                          className="cursor-pointer"
-                        >
-                          {user.name}
-                        </Label>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                <Button onClick={handleCreateProject} disabled={isSubmitting}>
-                  {isSubmitting ? (
-                    <>
-                      <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
-                      Criando...
-                    </>
-                  ) : (
-                    'Criar Projeto'
-                  )}
+    <div className="min-h-screen flex flex-col items-center justify-center px-4 md:px-20 gap-4 md:gap-8">
+      <div className="w-full flex flex-col md:flex-row items-center justify-between gap-4">
+        <div className="flex flex-col md:flex-row items-center gap-4 w-full">
+          <h1 className="text-2xl md:text-3xl font-semibold text-center md:text-left">
+            Projetos
+          </h1>
+          <div className="flex flex-col md:flex-row gap-2 md:gap-4 w-full justify-center md:justify-start">
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+              <DialogTrigger asChild>
+                <Button className="flex items-center justify-center gap-2 rounded-2xl w-[130px]">
+                  <PlusIcon className="size-2" />
+                  Adicionar
                 </Button>
-              </div>
-            </DialogContent>
-          </Dialog>
-          <Button
-            className="flex items-center justify-center gap-2 rounded-2xl w-[130px]"
-            onClick={() => {
-              navigate('/dashboard/reunioes/5')
-            }}
-          >
-            <CalendarIcon className="size-2" />
-            Reuniões
-          </Button>
+              </DialogTrigger>
+              <DialogContent className="max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle>Adicionar Novo Projeto</DialogTitle>
+                </DialogHeader>
+                <div className="flex flex-col gap-4">
+                  <div className="grid w-full items-center gap-2">
+                    <Label htmlFor="name">Nome</Label>
+                    <Input
+                      id="name"
+                      value={newProject.name}
+                      onChange={e =>
+                        setNewProject({ ...newProject, name: e.target.value })
+                      }
+                    />
+                  </div>
+                  <div className="grid w-full items-center gap-2">
+                    <Label htmlFor="description">Descrição</Label>
+                    <Input
+                      id="description"
+                      value={newProject.description}
+                      onChange={e =>
+                        setNewProject({
+                          ...newProject,
+                          description: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+                  <div className="grid w-full items-center gap-2">
+                    <Label htmlFor="price">Preço</Label>
+                    <Input
+                      id="price"
+                      type="number"
+                      value={newProject.price}
+                      onChange={e =>
+                        setNewProject({
+                          ...newProject,
+                          price: Number(e.target.value),
+                        })
+                      }
+                    />
+                  </div>
+                  <div className="grid w-full items-center gap-2">
+                    <Label>Prazo final</Label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className="w-full justify-start text-left font-normal"
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {date
+                            ? formatDate(date.toISOString())
+                            : 'Selecione uma data'}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0">
+                        <Calendar
+                          mode="single"
+                          selected={date}
+                          onSelect={newDate => {
+                            setDate(newDate)
+                            if (newDate) {
+                              const timezoneOffset =
+                                newDate.getTimezoneOffset() * 60000
+                              const adjustedDate = new Date(
+                                newDate.getTime() + timezoneOffset
+                              )
+                              setNewProject({
+                                ...newProject,
+                                deadline: adjustedDate
+                                  .toISOString()
+                                  .split('T')[0],
+                              })
+                            }
+                          }}
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                  <div className="grid w-full items-center gap-2">
+                    <Label htmlFor="status">Status</Label>
+                    <Select
+                      value={newProject.projectStatus}
+                      onValueChange={(value: ProjectStatus) =>
+                        setNewProject({ ...newProject, projectStatus: value })
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione um status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Object.values(ProjectStatus).map(status => (
+                          <SelectItem key={status} value={status}>
+                            {formatStatus(status)}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="grid w-full items-center gap-2">
+                    <Label>Selecione o cliente</Label>
+                    <RadioGroup
+                      className="border rounded-md p-4 space-y-2 max-h-40 overflow-y-auto"
+                      value={String(newProject.customerId)}
+                      onValueChange={value =>
+                        handleCustomerSelection(Number(value))
+                      }
+                    >
+                      {customers.map(customer => (
+                        <div
+                          key={customer.customerId}
+                          className="flex items-center space-x-2"
+                        >
+                          <RadioGroupItem
+                            value={String(customer.customerId)}
+                            id={`customer-${customer.customerId}`}
+                          />
+                          <Label
+                            htmlFor={`customer-${customer.customerId}`}
+                            className="cursor-pointer"
+                          >
+                            {customer.name}
+                          </Label>
+                        </div>
+                      ))}
+                    </RadioGroup>
+                  </div>
+                  <div className="grid w-full items-center gap-2">
+                    <Label>Selecione os usuários</Label>
+                    <div className="border rounded-md p-4 space-y-2 max-h-40 overflow-y-auto">
+                      {users.map(user => (
+                        <div
+                          key={user.userId}
+                          className="flex items-center space-x-2"
+                        >
+                          <Checkbox
+                            id={`user-${user.userId}`}
+                            checked={selectedUsers.includes(user.userId)}
+                            onCheckedChange={() =>
+                              handleUserSelection(user.userId)
+                            }
+                          />
+                          <Label
+                            htmlFor={`user-${user.userId}`}
+                            className="cursor-pointer"
+                          >
+                            {user.name}
+                          </Label>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  <Button onClick={handleCreateProject} disabled={isSubmitting}>
+                    {isSubmitting ? (
+                      <>
+                        <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
+                        Criando...
+                      </>
+                    ) : (
+                      'Criar Projeto'
+                    )}
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
+            <Button
+              className="flex items-center justify-center gap-2 rounded-2xl w-[130px]"
+              onClick={() => {
+                navigate('/dashboard/reunioes/5')
+              }}
+            >
+              <CalendarIcon className="size-2" />
+              Reuniões
+            </Button>
+          </div>
         </div>
         <Button
           className="rounded-2xl w-[130px]"
@@ -696,72 +700,74 @@ export function Projects() {
         </Button>
       </div>
 
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead className="w-[100px]">Nome</TableHead>
-            <TableHead>Descrição</TableHead>
-            <TableHead>Preço</TableHead>
-            <TableHead>Prazo final</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>Cliente</TableHead>
-            <TableHead>Usuários</TableHead>
-            <TableHead className="text-center" colSpan={2}>
-              Ações
-            </TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {projects.map(project => (
-            <TableRow key={project.projectId}>
-              <TableCell>{project.name}</TableCell>
-              <TableCell>{project.description}</TableCell>
-              <TableCell>
-                {new Intl.NumberFormat('pt-BR', {
-                  style: 'currency',
-                  currency: 'BRL',
-                }).format(project.price)}
-              </TableCell>
-              <TableCell>{formatDate(project.deadline)}</TableCell>
-              <TableCell>{formatStatus(project.projectStatus)}</TableCell>
-              <TableCell>{project.customer.name}</TableCell>
-              <TableCell className="text-center">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => {
-                    setSelectedProjectUsers(project.users)
-                    setIsUsersDialogOpen(true)
-                  }}
-                >
-                  <Eye className="size-4" />
-                </Button>
-              </TableCell>
-              <TableCell className="flex gap-2">
-                <Button
-                  className="flex items-center justify-center gap-2 rounded-2xl"
-                  variant="outline"
-                  onClick={() => handleUpdateClick(project)}
-                >
-                  <PencilIcon className="size-4" />
-                  Editar
-                </Button>
-                <Button
-                  className="flex items-center justify-center gap-2 rounded-2xl"
-                  variant="destructive"
-                  onClick={() => {
-                    setProjectToDelete(project)
-                    setIsDeleteDialogOpen(true)
-                  }}
-                >
-                  <DeleteIcon className="size-4" />
-                  Deletar
-                </Button>
-              </TableCell>
+      <div className="w-full overflow-x-auto">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-[100px]">Nome</TableHead>
+              <TableHead>Descrição</TableHead>
+              <TableHead>Preço</TableHead>
+              <TableHead>Prazo final</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Cliente</TableHead>
+              <TableHead>Usuários</TableHead>
+              <TableHead className="text-center" colSpan={2}>
+                Ações
+              </TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHeader>
+          <TableBody>
+            {projects.map(project => (
+              <TableRow key={project.projectId}>
+                <TableCell>{project.name}</TableCell>
+                <TableCell>{project.description}</TableCell>
+                <TableCell>
+                  {new Intl.NumberFormat('pt-BR', {
+                    style: 'currency',
+                    currency: 'BRL',
+                  }).format(project.price)}
+                </TableCell>
+                <TableCell>{formatDate(project.deadline)}</TableCell>
+                <TableCell>{formatStatus(project.projectStatus)}</TableCell>
+                <TableCell>{project.customer.name}</TableCell>
+                <TableCell className="text-center">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => {
+                      setSelectedProjectUsers(project.users)
+                      setIsUsersDialogOpen(true)
+                    }}
+                  >
+                    <Eye className="size-4" />
+                  </Button>
+                </TableCell>
+                <TableCell className="flex gap-2">
+                  <Button
+                    className="flex items-center justify-center gap-2 rounded-2xl"
+                    variant="outline"
+                    onClick={() => handleUpdateClick(project)}
+                  >
+                    <PencilIcon className="size-4" />
+                    Editar
+                  </Button>
+                  <Button
+                    className="flex items-center justify-center gap-2 rounded-2xl"
+                    variant="destructive"
+                    onClick={() => {
+                      setProjectToDelete(project)
+                      setIsDeleteDialogOpen(true)
+                    }}
+                  >
+                    <DeleteIcon className="size-4" />
+                    Deletar
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
 
       <PaginationControls />
 
