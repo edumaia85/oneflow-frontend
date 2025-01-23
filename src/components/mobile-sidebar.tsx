@@ -27,8 +27,16 @@ export function MobileSidebar() {
   const { user, handleLogout } = useAuth()
 
   const menuItems = [
-    { label: 'Dashboard', icon: LayoutDashboardIcon, href: '/dashboard' },
-    { label: 'Projetos', icon: FileTextIcon, href: '/dashboard/projetos' },
+    { 
+      label: 'Dashboard', 
+      icon: LayoutDashboardIcon, 
+      href: '/dashboard' 
+    },
+    { 
+      label: 'Projetos', 
+      icon: FileTextIcon, 
+      href: '/dashboard/projetos' 
+     },
     {
       label: 'Marketing',
       icon: MessageSquareCodeIcon,
@@ -44,9 +52,20 @@ export function MobileSidebar() {
       icon: BadgeDollarSignIcon,
       href: '/dashboard/financeiro',
     },
-    { label: 'Clientes', icon: UsersIcon, href: '/dashboard/clientes' },
-    { label: 'Presidência', icon: CrownIcon, href: '/dashboard/presidencia' },
+    { 
+      label: 'Clientes', 
+      icon: UsersIcon, 
+      href: '/dashboard/clientes' 
+    },
+    { 
+      label: 'Presidência', 
+      icon: CrownIcon, 
+      href: '/dashboard/presidencia' 
+    },
   ]
+
+  const userFirstName = user?.name?.[0] || ''
+  const userLastName = user?.lastName?.[0] || ''
 
   return (
     <Drawer open={isOpen} onOpenChange={setIsOpen}>
@@ -94,15 +113,15 @@ export function MobileSidebar() {
               <Avatar>
                 <AvatarImage src={user?.imageUrl} alt="Profile picture" />
                 <AvatarFallback>
-                  {user.name[0]}
-                  {user.lastName[0]}
+                  {userFirstName}
+                  {userLastName}
                 </AvatarFallback>
               </Avatar>
               <div>
                 <p className="font-semibold">
-                  {user.name} {user.lastName}
+                  {user.name || ''} {user.lastName || ''}
                 </p>
-                <p className="text-xs text-muted-foreground">{user.email}</p>
+                <p className="text-xs text-muted-foreground">{user.email || ''}</p>
               </div>
             </div>
             <div className="space-y-2">
