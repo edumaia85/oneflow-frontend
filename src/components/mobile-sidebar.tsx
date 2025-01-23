@@ -21,6 +21,7 @@ import {
 import { NavLink } from 'react-router-dom'
 import { useAuth } from '@/contexts/auth-context'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import logoDark from '@/assets/images/logo-dark.png'
 
 export function MobileSidebar() {
   const [isOpen, setIsOpen] = useState(false)
@@ -82,7 +83,7 @@ export function MobileSidebar() {
         <DrawerHeader>
           <DrawerTitle className="flex items-center gap-2">
             <img
-              src="/path/to/logo-dark.png"
+              src={logoDark}
               alt="OneFlow Logo"
               className="size-10"
             />
