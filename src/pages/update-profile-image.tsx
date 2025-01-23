@@ -79,18 +79,30 @@ export function UpdateProfileImage(): JSX.Element {
   }
 
   return (
-    <div className="w-full max-w-md mx-auto mt-8">
-      <h1 className="text-2xl font-bold mb-4">Atualizar foto de perfil</h1>
-      <form onSubmit={handleSubmit} className="flex flex-col gap-2">
+    <div className="w-full max-w-md mx-auto mt-8 px-4 sm:px-6 lg:px-8">
+      <h1 className="text-xl sm:text-2xl font-bold mb-4 text-center">
+        Atualizar foto de perfil
+      </h1>
+      <form
+        onSubmit={handleSubmit}
+        className="flex flex-col gap-4 w-full max-w-md mx-auto"
+      >
         <Input
           type="file"
           accept="image/*"
-          className="w-full"
+          className="w-full file:mr-4 file:rounded-full file:border-0 file:bg-primary/10 file:px-4 file:py-2 file:text-sm hover:file:bg-primary/20"
           onChange={handleFileChange}
         />
-        <Button type="submit" disabled={isSubmitting || !file}>
+        <Button
+          type="submit"
+          className="w-full mt-2"
+          disabled={isSubmitting || !file}
+        >
           {isSubmitting ? (
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            <div className="flex items-center justify-center gap-2">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Enviando...
+            </div>
           ) : (
             'Enviar Imagem'
           )}
