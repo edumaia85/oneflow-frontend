@@ -28,10 +28,12 @@ export function Sidebar({ className }: { className?: string }) {
   const { user, handleLogout } = useAuth()
 
   return (
-    <div className={cn(
-      "relative min-h-screen flex flex-col bg-gray-200 w-1/2 max-w-[270px] space-y-2", 
-      className
-    )}>
+    <div
+      className={cn(
+        'relative min-h-screen flex flex-col bg-gray-200 w-1/2 max-w-[270px] space-y-2',
+        className
+      )}
+    >
       {/* Cabeçalho */}
       <div className="w-full flex items-center gap-2 shadow-md px-4 h-20">
         <img src={logoDarkImg} alt="" className="size-10" />
@@ -77,7 +79,7 @@ export function Sidebar({ className }: { className?: string }) {
 
       {/* Usuário logado */}
       {user && (
-        <section className="absolute bottom-0 left-0 p-2 w-full flex items-center gap-2">
+        <section className="absolute bottom-0 left-0 p-2 w-full flex items-center gap-2 overflow-hidden">
           <Avatar>
             {/* Exibe uma imagem de perfil, se houver, ou as iniciais do usuário */}
             <AvatarImage src={user?.imageUrl} alt="Profile picture" />
@@ -86,20 +88,19 @@ export function Sidebar({ className }: { className?: string }) {
               {user.lastName}
             </AvatarFallback>
           </Avatar>
-          <div className="flex flex-col">
-            {/* Exibe o nome completo do usuário */}
-            <p className="font-semibold">
+          <div className="flex flex-col overflow-hidden">
+            <p className="font-semibold truncate">
               {user.name} {user.lastName}
             </p>
-            {/* Exibe o email do usuário */}
-            <p className="text-xs text-muted-foreground">{user.email}</p>
+            <p className="text-xs text-muted-foreground truncate">
+              {user.email}
+            </p>
           </div>
-          {/* Menu suspenso com opções */}
           <DropdownMenu>
-            <DropdownMenuTrigger className="mb-3 ml-3">
-              <ChevronDownIcon />
+            <DropdownMenuTrigger className="ml-auto mb-3">
+              <ChevronDownIcon className="size-5" />
             </DropdownMenuTrigger>
-            <DropdownMenuContent>
+            <DropdownMenuContent className="w-[calc(100%-1rem)]">
               <DropdownMenuLabel>Minha conta</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem>
