@@ -22,12 +22,16 @@ import {
 } from './ui/dropdown-menu'
 import { useAuth } from '@/contexts/auth-context'
 import { NavLink } from 'react-router-dom'
+import { cn } from '@/lib/utils'
 
-export function Sidebar() {
+export function Sidebar({ className }: { className?: string }) {
   const { user, handleLogout } = useAuth()
 
   return (
-    <div className="relative min-h-screen flex flex-col bg-gray-200 w-1/2 max-w-[270px] space-y-2">
+    <div className={cn(
+      "relative min-h-screen flex flex-col bg-gray-200 w-1/2 max-w-[270px] space-y-2", 
+      className
+    )}>
       {/* Cabeçalho */}
       <div className="w-full flex items-center gap-2 shadow-md px-4 h-20">
         <img src={logoDarkImg} alt="" className="size-10" />
