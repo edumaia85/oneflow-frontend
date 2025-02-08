@@ -25,7 +25,6 @@ oneflow-frontend/
 │   ├── hooks/      # Hooks customizados para abstração de lógica
 │   ├── layouts/    # Layouts reutilizáveis da aplicação
 │   ├── pages/      # Estruturação das rotas e interfaces da aplicação
-│   ├── services/   # Camada de integração com APIs
 │   ├── utils/      # Bibliotecas auxiliares e funções utilitárias
 ├── package.json    # Dependências e scripts do projeto
 ├── tsconfig.json   # Configuração do TypeScript
@@ -59,9 +58,6 @@ Contém hooks customizados para encapsular lógica reutilizável relacionada a e
 
 ### `pages/`
 Cada arquivo neste diretório corresponde a uma página navegável da aplicação e contém a lógica específica da interface correspondente.
-
-### `services/`
-Módulos responsáveis pela comunicação com APIs externas e abstração de requisições assíncronas, garantindo separação da lógica de rede do restante da aplicação.
 
 ### `utils/`
 Conjunto de funções auxiliares, como formatação de dados, manipulação de strings, operações matemáticas e outras funções genéricas utilizadas em múltiplas partes do sistema.
