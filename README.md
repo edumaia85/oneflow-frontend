@@ -4,7 +4,7 @@
 O **OneFlow** constitui a interface web de um sistema desenvolvido para gestão dos recursos da Empresa Junior OneBit. Utiliza tecnologias modernas como **React + Vite + TypeScript**, estruturadas segundo princípios avançados de engenharia de software, incluindo modularização, reutilização e separação de responsabilidades. O sistema adota uma abordagem orientada a componentes e segue as melhores práticas para desenvolvimento frontend escalável e sustentável.
 
 ## Tecnologias Empregadas
-- **Framework:** React + Vite
+- **Framework:** React
 - **Linguagem de Programação:** TypeScript
 - **Gerenciamento de Estado:** [useState, Context API]
 - **Estilização:** [Tailwind CSS, Shadcn/UI]
