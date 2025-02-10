@@ -1,4 +1,4 @@
-# Documentação Técnica do Projeto OneFlow Frontend
+# OneFlow
 
 ## Introdução
 O **OneFlow** constitui a interface web de um sistema desenvolvido para gestão dos recursos da Empresa Junior OneBit. Utiliza tecnologias modernas como **React + Vite + TypeScript**, estruturadas segundo princípios avançados de engenharia de software, incluindo modularização, reutilização e separação de responsabilidades. O sistema adota uma abordagem orientada a componentes e segue as melhores práticas para desenvolvimento frontend escalável e sustentável.
